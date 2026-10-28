@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yabancı Diller · Rubrikten Veli Yorumuna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<style>
+:root {
+  --paper: #FBFCFE; --grid: #E6ECF6; --ink: #1B2A4A; --graphite: #5B6475; --line: #D5DDEA;
+  --surface: #FFFFFF; --surface-2: #F3F6FB; --highlight: #FFE36E; --ok: #2F8F6B; --warn: #B4561E;
+  --l1: #ECE7F7; --l1-ink: #4B3A7A; --l2: #E2EFFB; --l2-ink: #1F4E7A;
+  --l3: #DFF3EA; --l3-ink: #1F6A4C; --l4: #FFF1C2; --l4-ink: #7A5A00;
+  --shadow: 0 1px 0 rgba(27,42,74,.06), 0 6px 18px -10px rgba(27,42,74,.25);
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #131A28; --grid: #1C2537; --ink: #E7ECF5; --graphite: #9AA6BC; --line: #2A3549;
+    --surface: #182133; --surface-2: #1E2940; --highlight: #8C7A1E; --ok: #5CC59B; --warn: #F0A06A;
+    --l1: #2E2748; --l1-ink: #CFC3F2; --l2: #1E3550; --l2-ink: #BFDDF8;
+    --l3: #1C3B30; --l3-ink: #B7EBD3; --l4: #3D3416; --l4-ink: #FBE3A0;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 20px -12px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #131A28; --grid: #1C2537; --ink: #E7ECF5; --graphite: #9AA6BC; --line: #2A3549;
+  --surface: #182133; --surface-2: #1E2940; --highlight: #8C7A1E; --ok: #5CC59B; --warn: #F0A06A;
+  --l1: #2E2748; --l1-ink: #CFC3F2; --l2: #1E3550; --l2-ink: #BFDDF8;
+  --l3: #1C3B30; --l3-ink: #B7EBD3; --l4: #3D3416; --l4-ink: #FBE3A0;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 20px -12px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 120px); }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; font-family: "Lexend", "Segoe UI", system-ui, -apple-system, sans-serif; font-weight: 400;
+  color: var(--ink); background-color: var(--paper);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px; line-height: 1.55; font-size: 15px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+:focus-visible { outline: 3px solid var(--highlight); outline-offset: 2px; border-radius: 6px; }
+
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-inner { max-width: 1180px; margin: 0 auto; padding: 14px 20px 0; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: flex-end; justify-content: space-between; }
+.brand { display: flex; flex-direction: column; gap: 6px; }
+.brand h1 { margin: 0; font-size: 1.2rem; font-weight: 600; letter-spacing: -0.01em; }
+.rsel { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--graphite); }
+.rsel select { border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 5px 8px; max-width: 280px; }
+.tabs { display: flex; gap: 2px; overflow-x: auto; max-width: 100%; }
+.tab { border: 0; background: none; padding: 10px 14px 12px; color: var(--graphite); font-weight: 500; border-bottom: 3px solid transparent; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.tab.new { color: var(--ok); }
+
+main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+.panel[hidden] { display: none; }
+.section-title { margin: 0 0 6px; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
+.section-intro { max-width: 70ch; color: var(--graphite); margin: 0 0 18px; }
+
+.classbar { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; margin-bottom: 18px; }
+.classbar .sub { color: var(--graphite); margin: 0; max-width: 62ch; }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; min-width: 112px; }
+.stat b { display: block; font-size: 1.35rem; font-weight: 600; line-height: 1.2; }
+.stat span { font-size: .78rem; color: var(--graphite); }
+.stat.good b { color: var(--ok); }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; align-items: center; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 14px; font-weight: 500; font-size: .9rem; }
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn.primary:hover:not(:disabled) { opacity: .9; background: var(--ink); }
+.btn.small { padding: 5px 10px; font-size: .82rem; }
+.btn.danger { color: var(--warn); }
+.addform { display: flex; gap: 6px; margin-left: auto; }
+.addform input, .field input, .field select { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 12px; min-width: 0; }
+.addform input { width: 200px; }
+
+.students { display: flex; flex-direction: column; gap: 12px; }
+.student { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); overflow: hidden; }
+.s-left { padding: 14px 16px; border-right: 1px dashed var(--line); }
+.s-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.s-name { font-weight: 600; font-size: 1.02rem; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip { font-size: .78rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; display: inline-block; }
+.c1 { background: var(--l1); color: var(--l1-ink); } .c2 { background: var(--l2); color: var(--l2-ink); }
+.c3 { background: var(--l3); color: var(--l3-ink); } .c4 { background: var(--l4); color: var(--l4-ink); }
+.chip.none { background: var(--surface-2); color: var(--graphite); font-weight: 500; }
+.iconbtn { border: 0; background: none; color: var(--graphite); padding: 4px 6px; border-radius: 6px; font-size: .85rem; }
+.iconbtn:hover { background: var(--surface-2); color: var(--ink); }
+.scores { display: grid; gap: 6px; }
+.score-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.cname { font-size: .86rem; color: var(--graphite); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cname.tag-s { color: var(--ink); }
+.cname.tag-s::after { content: "  güçlü yön"; font-size: .72rem; color: var(--ok); font-weight: 500; }
+.cname.tag-n::after { content: "  sonraki adım"; font-size: .72rem; color: var(--graphite); font-weight: 500; }
+.pick { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.pick button { border: 0; background: var(--surface); width: 34px; height: 30px; font-size: .86rem; font-weight: 500; color: var(--graphite); border-right: 1px solid var(--line); }
+.pick button:last-child { border-right: 0; }
+.pick button:hover { background: var(--surface-2); color: var(--ink); }
+.pick button[aria-pressed="true"] { font-weight: 700; }
+.pick button[aria-pressed="true"].c1 { background: var(--l1); color: var(--l1-ink); }
+.pick button[aria-pressed="true"].c2 { background: var(--l2); color: var(--l2-ink); }
+.pick button[aria-pressed="true"].c3 { background: var(--l3); color: var(--l3-ink); }
+.pick button[aria-pressed="true"].c4 { background: var(--l4); color: var(--l4-ink); }
+.s-right { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; background: var(--surface-2); }
+.comment { margin: 0; font-size: .95rem; line-height: 1.65; flex: 1; }
+.comment .p-s { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--l3) 90%, transparent) 62%); }
+.comment .p-n { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--l2) 90%, transparent) 62%); }
+.comment .p-note { font-style: italic; }
+.comment.empty { color: var(--graphite); font-size: .9rem; }
+.s-foot { display: flex; gap: 8px; align-items: center; }
+.s-foot input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 10px; font-size: .88rem; }
+.dup { font-size: .76rem; color: var(--warn); font-weight: 500; }
+
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; }
+th, td { padding: 12px 14px; vertical-align: top; text-align: left; border-bottom: 1px solid var(--line); font-size: .88rem; }
+th { font-weight: 600; font-size: .85rem; }
+thead th { background: var(--surface); }
+thead th.c1 { box-shadow: inset 0 -4px 0 var(--l1-ink); background: var(--surface); color: var(--ink); }
+thead th.c2 { box-shadow: inset 0 -4px 0 var(--l2-ink); background: var(--surface); color: var(--ink); }
+thead th.c3 { box-shadow: inset 0 -4px 0 var(--l3-ink); background: var(--surface); color: var(--ink); }
+thead th.c4 { box-shadow: inset 0 -4px 0 var(--l4-ink); background: var(--surface); color: var(--ink); }
+tbody th { width: 190px; background: var(--surface-2); }
+tbody th small { display: block; color: var(--graphite); font-weight: 400; margin-top: 4px; }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+td + td, th + td { border-left: 1px solid var(--line); }
+
+.pool { display: flex; flex-direction: column; gap: 10px; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+summary { padding: 14px 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+summary span { font-weight: 400; color: var(--graphite); font-size: .85rem; }
+.pool-body { padding: 0 16px 16px; display: grid; gap: 14px; }
+.pool-level h4 { margin: 8px 0 6px; font-size: .9rem; font-weight: 600; }
+.pool-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pool-cols label { display: block; font-size: .78rem; color: var(--graphite); margin-bottom: 4px; }
+textarea { width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 10px; font-size: .88rem; line-height: 1.5; resize: vertical; }
+.hint { font-size: .8rem; color: var(--graphite); }
+
+/* Upload wizard */
+.steps { display: grid; gap: 16px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 18px 20px; }
+.step[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+.step-h { display: flex; gap: 12px; align-items: baseline; margin-bottom: 10px; }
+.step-h .num { width: 28px; height: 28px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--ink); color: var(--paper); font-weight: 600; font-size: .9rem; flex: none; }
+.step-h h3 { margin: 0; font-size: 1.1rem; font-weight: 600; }
+.step-h p { margin: 2px 0 0; color: var(--graphite); font-size: .9rem; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field > span { font-size: .82rem; color: var(--graphite); }
+.sources { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-top: 12px; }
+.drop { border: 2px dashed var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--surface-2); }
+.drop strong { font-weight: 600; font-size: .92rem; }
+.filebtn { position: relative; overflow: hidden; display: inline-block; }
+.filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.status { font-size: .88rem; color: var(--graphite); min-height: 1.4em; }
+.status.err { color: var(--warn); }
+.status.ok { color: var(--ok); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+.edit-levels { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px; align-items: center; }
+.edit-levels input { width: 140px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 10px; }
+.ecrit { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 10px; background: var(--surface-2); }
+.ecrit-h { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; margin-bottom: 8px; }
+.ecrit-h input { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 10px; min-width: 0; }
+.ecrit-d { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.ecrit-d label { font-size: .76rem; color: var(--graphite); display: block; margin-bottom: 3px; }
+.privacy { display: flex; gap: 10px; align-items: flex-start; background: var(--l3); color: var(--l3-ink); border-radius: 10px; padding: 10px 14px; font-size: .88rem; margin-bottom: 14px; }
+
+.how { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.how-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+.how-card h3 { margin: 0 0 6px; font-size: 1.02rem; font-weight: 600; }
+.how-card p { margin: 0; color: var(--graphite); font-size: .92rem; }
+.source { margin-top: 18px; font-size: .82rem; color: var(--graphite); max-width: 80ch; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 10px; font-size: .9rem; opacity: 0; transition: opacity .2s, transform .2s; pointer-events: none; z-index: 20; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 860px) {
+  .student { grid-template-columns: 1fr; }
+  .s-left { border-right: 0; border-bottom: 1px dashed var(--line); }
+  .classbar, .grid2, .sources, .how, .pool-cols { grid-template-columns: 1fr; }
+  .addform { margin-left: 0; width: 100%; }
+  .addform input { flex: 1; width: auto; }
+  .ecrit-h { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 5px 12px; font-size: .82rem; font-weight: 500; color: var(--graphite); border-right: 1px solid var(--line); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.unitbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.unitbar select { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 12px; font-weight: 500; }
+.draft { background: var(--l4); color: var(--l4-ink); border-radius: 10px; padding: 10px 14px; font-size: .86rem; margin-bottom: 14px; }
+.obj { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px dashed var(--line); }
+.obj:last-child { border-bottom: 0; }
+.otext { min-width: 0; }
+.otext b { display: block; font-size: .86rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.otext span { display: block; font-size: .76rem; color: var(--graphite); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.otext.tag-s b::after { content: "  güçlü yön"; font-size: .72rem; color: var(--ok); font-weight: 500; }
+.otext.tag-n b::after { content: "  sonraki adım"; font-size: .72rem; color: var(--graphite); font-weight: 500; }
+.area { display: inline-block; font-size: .68rem; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--surface-2); color: var(--graphite); border: 1px solid var(--line); margin-right: 6px; vertical-align: 1px; }
+.ugroup { font-size: .78rem; font-weight: 600; color: var(--graphite); margin: 8px 0 2px; }
+.pick button.zero { width: 28px; }
+.usum { display: flex; flex-wrap: wrap; gap: 6px; }
+.usum .chip { font-weight: 500; }
+.ph-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ph-grid label { font-size: .74rem; color: var(--graphite); display: block; margin-bottom: 3px; }
+.ph-grid input, .ed input { width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 9px; font-size: .86rem; min-width: 0; }
+.ph-obj { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.ph-obj:last-child { border-bottom: 0; }
+.ph-head { font-size: .88rem; font-weight: 500; margin-bottom: 6px; }
+.preview { font-size: .8rem; color: var(--ok); margin-top: 6px; font-style: italic; }
+.ed { display: grid; gap: 8px; }
+.ed-row { display: grid; grid-template-columns: 110px 1.2fr 1.4fr; gap: 8px; }
+.ed-ph { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 8px; }
+.ed-unit { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--surface-2); margin-bottom: 10px; }
+.ed-unit > input { font-weight: 600; margin-bottom: 8px; }
+.ed-obj { border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 8px; display: grid; gap: 6px; }
+.lv-row { display: grid; grid-template-columns: 40px 160px 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; }
+.lv-row b { text-align: center; }
+@media (max-width: 860px) { .ph-grid, .ed-row, .ed-ph, .lv-row { grid-template-columns: 1fr; } }
+.modal-bg { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: grid; place-items: center; z-index: 30; padding: 20px; }
+.modal-bg[hidden] { display: none; }
+.modal { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); max-width: 440px; width: 100%; padding: 20px 22px; }
+.modal p { margin: 0 0 16px; line-height: 1.55; }
+.modal .actions { justify-content: flex-end; margin-top: 0; }
+
+@media (max-width: 860px) {
+  .student { grid-template-columns: 1fr; }
+  .s-left { border-right: 0; border-bottom: 1px dashed var(--line); }
+  .classbar, .grid2, .sources, .how, .pool-cols { grid-template-columns: 1fr; }
+  .addform { margin-left: 0; width: 100%; }
+  .addform input { flex: 1; width: auto; }
+  .ecrit-h { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 5px 12px; font-size: .82rem; font-weight: 500; color: var(--graphite); border-right: 1px solid var(--line); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.unitbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.unitbar select { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 12px; font-weight: 500; }
+.draft { background: var(--l4); color: var(--l4-ink); border-radius: 10px; padding: 10px 14px; font-size: .86rem; margin-bottom: 14px; }
+.obj { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px dashed var(--line); }
+.obj:last-child { border-bottom: 0; }
+.otext { min-width: 0; }
+.otext b { display: block; font-size: .86rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.otext span { display: block; font-size: .76rem; color: var(--graphite); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.otext.tag-s b::after { content: "  güçlü yön"; font-size: .72rem; color: var(--ok); font-weight: 500; }
+.otext.tag-n b::after { content: "  sonraki adım"; font-size: .72rem; color: var(--graphite); font-weight: 500; }
+.area { display: inline-block; font-size: .68rem; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--surface-2); color: var(--graphite); border: 1px solid var(--line); margin-right: 6px; vertical-align: 1px; }
+.ugroup { font-size: .78rem; font-weight: 600; color: var(--graphite); margin: 8px 0 2px; }
+.pick button.zero { width: 28px; }
+.usum { display: flex; flex-wrap: wrap; gap: 6px; }
+.usum .chip { font-weight: 500; }
+.ph-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ph-grid label { font-size: .74rem; color: var(--graphite); display: block; margin-bottom: 3px; }
+.ph-grid input, .ed input { width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 9px; font-size: .86rem; min-width: 0; }
+.ph-obj { border-bottom: 1px solid var(--line); padding: 10px 0; }
+.ph-obj:last-child { border-bottom: 0; }
+.ph-head { font-size: .88rem; font-weight: 500; margin-bottom: 6px; }
+.preview { font-size: .8rem; color: var(--ok); margin-top: 6px; font-style: italic; }
+.ed { display: grid; gap: 8px; }
+.ed-row { display: grid; grid-template-columns: 110px 1.2fr 1.4fr; gap: 8px; }
+.ed-ph { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 8px; }
+.ed-unit { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--surface-2); margin-bottom: 10px; }
+.ed-unit > input { font-weight: 600; margin-bottom: 8px; }
+.ed-obj { border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 8px; display: grid; gap: 6px; }
+.lv-row { display: grid; grid-template-columns: 40px 160px 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; }
+.lv-row b { text-align: center; }
+@media (max-width: 860px) { .ph-grid, .ed-row, .ed-ph, .lv-row { grid-template-columns: 1fr; } }
+
+.auth { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.auth[hidden], #appView[hidden], .admin-only[hidden], form[hidden], [hidden] { display: none !important; }
+.auth-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 26px 28px; width: 100%; max-width: 420px; }
+.auth-card h1 { font-size: 1.25rem; margin: 0 0 6px; font-weight: 600; }
+.auth-card .field input { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 9px 12px; }
+.userchip { font-weight: 500; color: var(--ink); }
+</style>
+</head>
+<body>
+<section id="authView" class="auth" hidden>
+  <div class="auth-card">
+    <h1>Yabancı Diller · Rubrikten veli yorumuna</h1>
+    <p class="hint" id="authIntro">Zümre hesabınla giriş yap.</p>
+    <form id="loginForm" class="ed">
+      <label class="field"><span>E-posta</span><input id="loginEmail" type="email" autocomplete="username" required></label>
+      <label class="field"><span>Şifre</span><input id="loginPass" type="password" autocomplete="current-password" required></label>
+      <div class="actions"><button class="btn primary" type="submit" id="loginBtn">Giriş yap</button><button class="btn" type="button" id="forgotBtn">Şifremi unuttum</button></div>
+    </form>
+    <form id="pwForm" class="ed" hidden>
+      <label class="field"><span>Adın soyadın</span><input id="pwName" autocomplete="name" maxlength="60"></label>
+      <label class="field"><span>Yeni şifre (en az 8 karakter)</span><input id="pwPass" type="password" autocomplete="new-password" minlength="8" required></label>
+      <div class="actions"><button class="btn primary" type="submit">Şifreyi kaydet ve devam et</button></div>
+    </form>
+    <p class="status" id="authStatus" role="status"></p>
+  </div>
+</section>
+<div id="appView" hidden>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <h1>Yabancı Diller · Rubrikten veli yorumuna</h1>
+      <div class="ctrls">
+        <label class="rsel">Rubrik <select id="rubricSelect" aria-label="Rubrik"></select></label>
+        <span class="rsel">Yorum dili <span class="seg" id="langSeg" role="group" aria-label="Yorum dili">
+          <button data-lang="tr" aria-pressed="true">Türkçe</button><button data-lang="en" aria-pressed="false">English</button><button data-lang="de" aria-pressed="false">Deutsch</button>
+        </span></span>
+        <span class="rsel" id="userBox"></span>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Bölümler">
+      <button class="tab" role="tab" aria-selected="true" data-tab="eval">Değerlendirme</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="rubric">Rubrik</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="phrases">Kazanım ifadeleri</button>
+      <button class="tab new admin-only" role="tab" aria-selected="false" data-tab="upload">Rubrik yükle</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="how">Nasıl çalışır</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="panel-setup" role="tabpanel" hidden>
+    <h2 class="section-title">İlk kurulum</h2>
+    <p class="section-intro" id="setupText"></p>
+    <div class="actions" id="setupActions"></div>
+  </section>
+  <section class="panel" id="panel-eval" role="tabpanel">
+    <div class="classbar">
+      <div>
+        <h2 class="section-title" id="evalTitle"></h2>
+        <p class="sub" id="evalSub"></p>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div id="draftNote"></div>
+    <div class="unitbar">
+      <label class="rsel">Şube <select id="classSelect" aria-label="Şube"></select></label>
+      <label class="rsel">Ünite <select id="unitSelect" aria-label="Ünite"></select></label>
+      <span class="hint" id="unitHint"></span>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" id="copyAll">Tüm yorumları kopyala</button>
+      <button class="btn" id="reloadBtn">Yenile</button>
+      <button class="btn admin-only" id="rosterBtn">Sınıf listesi yükle</button>
+      <input type="file" id="rosterFile" accept=".xlsx,.xls,.csv" hidden>
+      <form class="addform" id="addForm">
+        <input id="newName" placeholder="Öğrenci adı" aria-label="Yeni öğrenci adı" maxlength="60">
+        <button class="btn" type="submit">Öğrenci ekle</button>
+      </form>
+    </div>
+    <div class="students" id="students"></div>
+  </section>
+
+  <section class="panel" id="panel-rubric" role="tabpanel" hidden>
+    <h2 class="section-title" id="rubricTitle"></h2>
+    <p class="section-intro" id="rubricIntro"></p>
+    <h3>Puan ölçeği</h3>
+    <div class="scroll" style="margin-bottom:20px"><table id="scaleTable"></table></div>
+    <h3>Ünite kazanımları</h3>
+    <div class="scroll"><table id="objTable"></table></div>
+    <div class="actions" id="rubricActions"></div>
+  </section>
+
+  <section class="panel" id="panel-phrases" role="tabpanel" hidden>
+    <h2 class="section-title">Kazanım ifadeleri</h2>
+    <p class="section-intro">Veli yorumları, her kazanım için yazılmış bu kısa ifadelerle kurulur. Bir ifadeyi değiştirdiğinde o kazanımı içeren tüm yorumlar anında güncellenir. Türkçe ifade “… konusunda” kalıbına, İngilizce ifade “They can …” kalıbına, Almanca ifade “Es kann …” kalıbına uymalı.</p>
+    <div class="pool" id="phrases"></div>
+  </section>
+
+  <section class="panel" id="panel-upload" role="tabpanel" hidden>
+    <h2 class="section-title">Yeni rubrik yükle</h2>
+    <p class="section-intro">Rubriğini ekle; yapay zekâ üniteleri, kazanımları, puan ölçeğini ve her kazanım için Türkçe, İngilizce ve Almanca kısa ifadeleri çıkarsın. Sonra her şeyi kontrol edip kaydedersin.</p>
+    <div class="privacy"><span aria-hidden="true">🔒</span><span>Yapay zekâya yalnızca rubrik metni gider. Öğrenci adları, puanlar ve notlar hiçbir zaman gönderilmez; yorumlar senin tarayıcında kurallarla oluşturulur.</span></div>
+    <div class="steps">
+      <div class="step" id="step1">
+        <div class="step-h"><span class="num">1</span><div><h3>Rubriği ekle</h3><p>Metni yapıştır, Excel ya da Word dosyası seç veya fotoğrafını yükle.</p></div></div>
+        <div class="grid2">
+          <label class="field"><span>Rubrik adı</span><input id="upTitle" placeholder="Örn. 5. Sınıf Fransızca" maxlength="80"></label>
+          <label class="field"><span>Grup</span><input id="upGroup" placeholder="Örn. Fransızca" maxlength="40"></label>
+        </div>
+        <div class="sources">
+          <label class="field"><span>Rubrik metni</span><textarea id="upText" rows="9" placeholder="Rubriği Word, Excel ya da PDF’ten kopyalayıp buraya yapıştırabilirsin. Tablo biçimi bozulsa da sorun değil."></textarea></label>
+          <div class="drop">
+            <strong>Dosyadan al</strong>
+            <span class="filebtn btn">Excel, CSV, Word veya metin seç<input type="file" id="upFile" accept=".xlsx,.xls,.csv,.docx,.txt,.md"></span>
+            <span class="hint">Google Sheets için: Dosya → İndir → Microsoft Excel (.xlsx). PDF için metni kopyalayıp yapıştır ya da fotoğrafını yükle.</span>
+            <div id="imgWrap" hidden>
+              <strong>Fotoğraftan al</strong>
+              <span class="filebtn btn">Fotoğraf seç<input type="file" id="upImage" accept="image/*"></span>
+              <span class="hint" id="imgName"></span>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="parseBtn">Rubriği çözümle</button>
+          <button class="btn" id="stopBtn" hidden>Durdur</button>
+          <button class="btn" id="manualBtn">Elle oluştur</button>
+          <span class="status" id="parseStatus" role="status"></span>
+        </div>
+      </div>
+      <div class="step" id="step2" aria-disabled="true">
+        <div class="step-h"><span class="num">2</span><div><h3>Kontrol et ve düzelt</h3><p>Ders adı, puan ölçeği, üniteler, kazanımlar ve üç dildeki ifadeler.</p></div></div>
+        <div id="editor"></div>
+      </div>
+      <div class="step" id="step3" aria-disabled="true">
+        <div class="step-h"><span class="num">3</span><div><h3>Kaydet ve kullanmaya başla</h3><p id="saveSummary">Kaydettikten sonra rubrik üstteki listede görünür.</p></div></div>
+        <div class="actions"><button class="btn primary" id="saveBtn">Rubriği kaydet ve kullan</button><span class="status" id="saveStatus" role="status"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-how" role="tabpanel" hidden>
+    <h2 class="section-title">Nasıl çalışır</h2>
+    <p class="section-intro">Her kazanım ünite sonunda 0–5 arasında puanlanır. 0 (henüz gözlenmedi) yoruma katılmaz. Yorum, seçili ünitedeki ya da “Tüm üniteler” seçiliyse puanlanmış tüm kazanımlardan kurallarla oluşturulur; öğrenci bilgisi hiçbir yere gönderilmez.</p>
+    <div class="how">
+      <div class="how-card"><h3>Açılış cümlesi</h3><p>Puanlanan kazanımların ortalamasına göre genel düzey belirlenir ve o düzeye ait açılış cümlelerinden biri seçilir.</p></div>
+      <div class="how-card"><h3>Güçlü yön</h3><p>En yüksek puanlı kazanım, puanına uygun bir cümle kalıbıyla anlatılır. Eşitlik varsa sınıfta daha az kullanılmış kazanım seçilir.</p></div>
+      <div class="how-card"><h3>Sonraki adım</h3><p>En düşük puanlı kazanımdan, yargılamayan ve yol gösteren bir cümle eklenir.</p></div>
+      <div class="how-card"><h3>Üç dil, çeşitlilik</h3><p>Her kalıbın üç farklı yazımı var ve Türkçe, İngilizce, Almanca olarak hazır. Aynı puan desenine sahip öğrenciler bile sınıf içinde farklı yorum alır.</p></div>
+    </div>
+    <p class="source">Veriler zümrenin ortak veritabanında saklanır: herkes tüm puanları görür, her puanın kimin tarafından girildiği kaydedilir. Yapay zekâ yalnızca Claude içinden açıldığında rubrik yüklemede kullanılır ve ona yalnızca rubrik metni gider. İngilizce rubrikler zümrenin Super Minds ünite kazanım rubrikleridir. Almanca rubrikler 2026–2027 yıllık planlarından oluşturulmuş taslaklardır ve Almanca zümresinin gözden geçirmesi önerilir. Sınıf listelerinden yalnızca okul numarası, ad soyad ve şube alınır.</p>
+  </section>
+</main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const BUILTIN = [{"id": "en1", "builtIn": true, "group": "İngilizce", "title": "1. Sınıf İngilizce", "subtitle": "Super Minds Level 1 (2. dönem) · Pre A1", "note": "Kitap: 1. dönem Super Minds Starter, 2. dönem Super Minds Level 1 (2nd Edition). Hedef düzey: Pre A1 (Cambridge YLE Pre A1 Starters'a hazırlık).", "subject": {"tr": "İngilizce", "en": "English", "de": "Englisch"}, "scale": [{"n": 0, "label": "Henüz gözlenmedi", "tr": "Bu kazanımla ilgili çalışma henüz gözlenmedi.", "en": "Not yet observed for this objective."}, {"n": 1, "label": "Başlangıç", "tr": "Birkaç kelimeyi resimle eşleştirir. Kalıbı dinlediğinde anlar ve söylemeye başlıyor.", "en": "Matches a few words to pictures. Understands the pattern when listening and is starting to say it."}, {"n": 2, "label": "Destekle yapıyor", "tr": "Bazı kelimeleri tanır. Kalıbı öğretmenini ya da arkadaşını tekrar ederek söyler.", "en": "Recognises some of the words. Says the pattern by repeating the teacher or a classmate."}, {"n": 3, "label": "Gelişiyor", "tr": "Kelimelerin çoğunu tanır, bir kısmını söyler. Kalıbı resim, jest ya da örnek desteğiyle kullanır.", "en": "Recognises most of the words and says some of them. Uses the pattern with picture, gesture or model support."}, {"n": 4, "label": "İyi", "tr": "Kelimelerin çoğunu tanır ve söyler. Kalıbı küçük hatalarla, çoğunlukla yardım almadan kullanır.", "en": "Recognises and says most of the words. Uses the pattern mostly without help, with small errors."}, {"n": 5, "label": "Çok iyi", "tr": "Kelimeleri tanır ve kendiliğinden söyler. Kalıbı yardım almadan, doğru biçimde ve kendi bilgileriyle kullanır.", "en": "Recognises and says the words on their own. Uses the pattern accurately and without help, with their own information."}], "units": [{"name": "Intro", "objectives": [{"area": "Kelime", "label": "Greetings, Numbers 1-10, Colours", "desc": "Selamlaşır; 1-10 arası sayıları ve renkleri tanır ve söyler.", "example": "Hello! / Goodbye! der, 1'den 10'a kadar sayar, gösterilen renkleri doğru adlandırır.", "p": {"tr": "selamlaşma, 1–10 arası sayılar ve renkler", "en": "greet people and name numbers 1–10 and colours", "de": "grüßen sowie die Zahlen 1 bis 10 und Farben benennen"}, "id": "en1o1"}, {"area": "Dil yapısı", "label": "What's your name? I'm Thunder.", "desc": "Adını sorar ve söyler.", "example": "Arkadaşına What's your name? diye sorar, I'm Elif. diye cevap verir.", "p": {"tr": "adını sorup söyleme", "en": "ask and say their name", "de": "nach dem Namen fragen und den eigenen Namen sagen"}, "id": "en1o2"}, {"area": "Dil yapısı", "label": "How old are you? I'm seven.", "desc": "Yaşını sorar ve söyler.", "example": "How old are you? sorusuna I'm seven. diye cevap verir ve aynı soruyu arkadaşına sorar.", "p": {"tr": "yaşını sorup söyleme", "en": "ask and say their age", "de": "nach dem Alter fragen und das eigene Alter sagen"}, "id": "en1o3"}, {"area": "Dil yapısı", "label": "Flash's bag is ...", "desc": "Bir eşyanın kime ait olduğunu ve rengini 's ile söyler.", "example": "Ali's bag is blue. gibi bir cümle kurar.", "p": {"tr": "'s ile bir eşyanın kime ait olduğunu söyleme", "en": "say who something belongs to with 's", "de": "mit „'s“ sagen, wem etwas gehört"}, "id": "en1o4"}]}, {"name": "Unit 1", "objectives": [{"area": "Kelime", "label": "Classroom Objects", "desc": "Sınıf eşyalarını tanır ve söyler.", "example": "Gösterilen sınıf eşyalarını (pencil, rubber, book, bag vb.) doğru adlandırır.", "p": {"tr": "sınıf eşyalarını adlandırma", "en": "name classroom objects", "de": "Gegenstände im Klassenzimmer benennen"}, "id": "en1o5"}, {"area": "Dil yapısı", "label": "Questions and short answers", "desc": "Eşyalarla ilgili basit sorulara kısa cevap verir.", "example": "What's this? – It's a pencil. / Is it a ruler? – No, it isn't.", "p": {"tr": "eşyalarla ilgili sorulara kısa cevap verme", "en": "answer simple questions about objects with short answers", "de": "einfache Fragen zu Gegenständen kurz beantworten"}, "id": "en1o6"}, {"area": "Dil yapısı", "label": "Imperatives", "desc": "Sınıf yönergelerini anlar, uygular ve arkadaşına söyler.", "example": "Stand up. Open your book. yönergelerini uygular ve oyunda arkadaşına yönerge verir.", "p": {"tr": "sınıf yönergelerini anlayıp uygulama", "en": "understand and follow classroom instructions", "de": "Anweisungen im Unterricht verstehen und befolgen"}, "id": "en1o7"}]}, {"name": "Unit 2", "objectives": [{"area": "Kelime", "label": "Toys", "desc": "Oyuncakları tanır ve söyler.", "example": "Resimdeki oyuncakları (ball, doll, car, kite vb.) doğru adlandırır.", "p": {"tr": "oyuncakları adlandırma", "en": "name toys", "de": "Spielsachen benennen"}, "id": "en1o8"}, {"area": "Dil yapısı", "label": "What's his / her ...? How old is he / she?", "desc": "Başka birinin adını ve yaşını sorar ve söyler.", "example": "What's her name? – Her name's Ada. How old is he? – He's eight.", "p": {"tr": "başka birinin adını ve yaşını sorup söyleme", "en": "ask and talk about someone else's name and age", "de": "nach Namen und Alter einer anderen Person fragen und darüber sprechen"}, "id": "en1o9"}, {"area": "Dil yapısı", "label": "Adjectives", "desc": "Oyuncakları basit sıfatlarla tanımlar.", "example": "It's a big red ball. / My car is new. gibi cümleler kurar.", "p": {"tr": "oyuncakları basit sıfatlarla tanımlama", "en": "describe toys with simple adjectives", "de": "Spielsachen mit einfachen Adjektiven beschreiben"}, "id": "en1o10"}]}, {"name": "Unit 3", "objectives": [{"area": "Kelime", "label": "Animals", "desc": "Hayvanları tanır ve söyler.", "example": "Resimdeki hayvanları (cat, dog, bird, frog vb.) doğru adlandırır.", "p": {"tr": "hayvanları adlandırma", "en": "name animals", "de": "Tiere benennen"}, "id": "en1o11"}, {"area": "Dil yapısı", "label": "Prepositions: in, on, under", "desc": "Bir şeyin yerini in, on, under ile söyler.", "example": "The cat is under the table. / The frog is on the chair.", "p": {"tr": "in, on, under ile yer bildirme", "en": "say where things are with in, on and under", "de": "mit in, on und under sagen, wo etwas ist"}, "id": "en1o12"}, {"area": "Dil yapısı", "label": "I like / I don't like ...", "desc": "Sevdiği ve sevmediği şeyleri söyler.", "example": "I like dogs. I don't like spiders.", "p": {"tr": "sevdiği ve sevmediği şeyleri söyleme", "en": "say what they like and don't like", "de": "sagen, was es mag und nicht mag"}, "id": "en1o13"}]}, {"name": "Unit 4", "objectives": [{"area": "Kelime", "label": "Food", "desc": "Yiyecekleri tanır ve söyler.", "example": "Resimdeki yiyecekleri (apple, banana, bread vb.) doğru adlandırır.", "p": {"tr": "yiyecekleri adlandırma", "en": "name food", "de": "Lebensmittel benennen"}, "id": "en1o14"}, {"area": "Dil yapısı", "label": "I've got / I haven't got ...", "desc": "Elinde olan ve olmayan şeyleri söyler.", "example": "I've got an apple. I haven't got a banana.", "p": {"tr": "elinde olan ve olmayan şeyleri söyleme", "en": "say what they have got and haven't got", "de": "sagen, was es hat und nicht hat"}, "id": "en1o15"}, {"area": "Dil yapısı", "label": "Have ... got any ...?", "desc": "Have you got any ...? diye sorar ve kısa cevap verir.", "example": "Have you got any bananas? – Yes, I have. / No, I haven't.", "p": {"tr": "Have you got any…? sorusunu sorup cevaplama", "en": "ask and answer “Have you got any…?”", "de": "die Frage „Have you got any…?“ stellen und beantworten"}, "id": "en1o16"}]}, {"name": "Unit 5", "objectives": [{"area": "Kelime", "label": "Days of the Week", "desc": "Haftanın günlerini sırasıyla söyler ve tanır.", "example": "Haftanın günlerini sırayla söyler, Today is Monday. der.", "p": {"tr": "haftanın günlerini söyleme", "en": "say the days of the week", "de": "die Wochentage nennen"}, "id": "en1o17"}, {"area": "Dil yapısı", "label": "I (watch TV) on (Sundays).", "desc": "Hangi gün ne yaptığını söyler.", "example": "I play football on Saturdays.", "p": {"tr": "hangi gün ne yaptığını söyleme", "en": "say what they do on different days", "de": "sagen, was es an welchem Tag macht"}, "id": "en1o18"}, {"area": "Dil yapısı", "label": "Do you ...? Yes, I do. / No, I don't.", "desc": "Alışkanlıklarla ilgili Do you ...? sorusunu sorar ve kısa cevap verir.", "example": "Do you watch TV on Sundays? – Yes, I do.", "p": {"tr": "alışkanlıklarla ilgili soru sorup kısa cevap verme", "en": "ask and answer questions about routines", "de": "Fragen zu Gewohnheiten stellen und kurz beantworten"}, "id": "en1o19"}]}, {"name": "Unit 6", "objectives": [{"area": "Kelime", "label": "The Home", "desc": "Evin bölümlerini ve eşyalarını söyler.", "example": "Resimdeki odaları ve eşyaları (kitchen, bedroom, bed vb.) doğru adlandırır.", "p": {"tr": "evin bölümlerini ve eşyalarını adlandırma", "en": "name rooms and things in the home", "de": "Zimmer und Dinge im Haus benennen"}, "id": "en1o20"}, {"area": "Dil yapısı", "label": "There's / There are ...", "desc": "Bir yerde ne olduğunu There's / There are ile söyler.", "example": "There's a bed in the bedroom. There are two chairs.", "p": {"tr": "There's / There are ile bir yerde ne olduğunu söyleme", "en": "say what there is in a place with there's and there are", "de": "mit „There's / There are“ sagen, was es an einem Ort gibt"}, "id": "en1o21"}, {"area": "Dil yapısı", "label": "Is / Are there ...? How many ...?", "desc": "Is there / Are there ve How many ...? sorularını sorar ve cevaplar.", "example": "How many windows are there? – There are three.", "p": {"tr": "Is there…? ve How many…? sorularını sorup cevaplama", "en": "ask and answer “Is there…?” and “How many…?” questions", "de": "Fragen mit „Is there…?“ und „How many…?“ stellen und beantworten"}, "id": "en1o22"}]}, {"name": "Unit 7", "objectives": [{"area": "Kelime", "label": "Clothes", "desc": "Giysileri tanır ve söyler.", "example": "Resimdeki giysileri (T-shirt, shoes, hat vb.) doğru adlandırır.", "p": {"tr": "giysileri adlandırma", "en": "name clothes", "de": "Kleidungsstücke benennen"}, "id": "en1o23"}, {"area": "Dil yapısı", "label": "Do you like this / these ...?", "desc": "Bir giysiyi sevip sevmediğini sorar ve cevaplar.", "example": "Do you like these shoes? – Yes, I do.", "p": {"tr": "bir giysiyi sevip sevmediğini sorup söyleme", "en": "ask and say whether they like clothes", "de": "fragen und sagen, ob ihm ein Kleidungsstück gefällt"}, "id": "en1o24"}, {"area": "Dil yapısı", "label": "Is he / she + ing", "desc": "Birinin ne giydiğini ya da ne yaptığını sorar ve cevaplar.", "example": "Is he wearing a hat? – Yes, he is.", "p": {"tr": "birinin ne giydiğini ya da ne yaptığını sorup cevaplama", "en": "ask and answer what someone is wearing or doing", "de": "fragen und beantworten, was jemand trägt oder macht"}, "id": "en1o25"}]}, {"name": "Unit 8", "objectives": [{"area": "Kelime", "label": "The Body", "desc": "Vücut bölümlerini tanır ve söyler.", "example": "Vücut bölümlerini (head, arm, leg vb.) gösterip doğru adlandırır.", "p": {"tr": "vücut bölümlerini adlandırma", "en": "name parts of the body", "de": "Körperteile benennen"}, "id": "en1o26"}, {"area": "Dil yapısı", "label": "Can / Can't for ability", "desc": "Yapabildiği ve yapamadığı şeyleri söyler.", "example": "I can swim. I can't fly.", "p": {"tr": "yapabildiği ve yapamadığı şeyleri söyleme", "en": "say what they can and can't do", "de": "sagen, was es kann und nicht kann"}, "id": "en1o27"}, {"area": "Dil yapısı", "label": "Questions with can for ability", "desc": "Can you ...? diye sorar ve kısa cevap verir.", "example": "Can you jump? – Yes, I can. / No, I can't.", "p": {"tr": "Can you…? sorusunu sorup kısa cevap verme", "en": "ask and answer “Can you…?” questions", "de": "die Frage „Can you…?“ stellen und kurz beantworten"}, "id": "en1o28"}]}, {"name": "Unit 9", "objectives": [{"area": "Kelime", "label": "Holidays", "desc": "Tatille ilgili yer ve etkinlik kelimelerini söyler.", "example": "Resimdeki tatil kelimelerini (beach, sea, sun vb.) doğru adlandırır.", "p": {"tr": "tatille ilgili kelimeleri kullanma", "en": "name holiday places and activities", "de": "Wörter zum Thema Urlaub benennen"}, "id": "en1o29"}, {"area": "Dil yapısı", "label": "Suggestions", "desc": "Let's ... ile öneride bulunur.", "example": "Let's go to the beach! / Let's play!", "p": {"tr": "Let's… ile öneride bulunma", "en": "make suggestions with “Let's…”", "de": "mit „Let's…“ Vorschläge machen"}, "id": "en1o30"}, {"area": "Dil yapısı", "label": "Where's / Where are ...?", "desc": "Bir şeyin yerini sorar ve söyler.", "example": "Where's my hat? – It's on the bed. Where are my shoes?", "p": {"tr": "bir şeyin yerini sorup söyleme", "en": "ask and say where things are", "de": "fragen und sagen, wo etwas ist"}, "id": "en1o31"}]}], "grade": "1"}, {"id": "en2", "builtIn": true, "group": "İngilizce", "title": "2. Sınıf İngilizce", "subtitle": "Super Minds Level 2 · Pre A1 Starters", "note": "Kitap: Super Minds Level 2 (2nd Edition). Hedef düzey: Pre A1 (Cambridge YLE Pre A1 Starters).", "subject": {"tr": "İngilizce", "en": "English", "de": "Englisch"}, "scale": [{"n": 0, "label": "Henüz gözlenmedi", "tr": "Bu kazanımla ilgili çalışma henüz gözlenmedi.", "en": "Not yet observed for this objective."}, {"n": 1, "label": "Başlangıç", "tr": "Kelimeleri dinlediğinde tanır ve söylemeye başlıyor. Kalıbı dinlediğinde anlar.", "en": "Recognises the words when listening and is starting to say them. Understands the pattern when listening."}, {"n": 2, "label": "Destekle yapıyor", "tr": "Bazı kelimeleri söyler. Kalıbı tek kelimeyle ya da tekrar ederek kullanır.", "en": "Says some of the words. Uses the pattern with single words or by repeating."}, {"n": 3, "label": "Gelişiyor", "tr": "Kelimelerin çoğunu bilir. Kalıbı örnek cümle ya da resim desteğiyle kullanır, soruları cevaplar ama soru sormakta desteğe ihtiyaç duyar.", "en": "Knows most of the words. Uses the pattern with a model sentence or picture support; answers questions but needs support to ask them."}, {"n": 4, "label": "İyi", "tr": "Kelimelerin çoğunu doğru söyler. Kalıbı küçük hatalarla, çoğunlukla yardım almadan kullanır.", "en": "Says most of the words correctly. Uses the pattern mostly without help, with small errors."}, {"n": 5, "label": "Çok iyi", "tr": "Kelimeleri doğru söyler ve yazılı hallerini tanır. Kalıpla soru sorar ve kısa cümlelerle yardım almadan cevap verir.", "en": "Says the words correctly and recognises them in writing. Asks questions with the pattern and answers in short sentences without help."}], "units": [{"name": "Intro", "objectives": [{"area": "Kelime", "label": "The classroom", "desc": "Sınıftaki nesneleri adlandırır.", "example": "Sınıftaki nesneleri (board, desk, window vb.) doğru adlandırır.", "p": {"tr": "sınıftaki nesneleri adlandırma", "en": "name things in the classroom", "de": "Dinge im Klassenzimmer benennen"}, "id": "en2o1"}, {"area": "Dil yapısı", "label": "There is / There are", "desc": "Sınıfta neler olduğunu There is / There are ile söyler.", "example": "There's a board. There are twenty desks.", "p": {"tr": "There is / There are ile sınıfta neler olduğunu söyleme", "en": "say what there is in the classroom with there is and there are", "de": "mit „There is / There are“ sagen, was es im Klassenzimmer gibt"}, "id": "en2o2"}, {"area": "Dil yapısı", "label": "Imperatives", "desc": "Yönergeleri anlar; olumlu ve olumsuz yönerge verir.", "example": "Open the window, please. / Don't run!", "p": {"tr": "yönergeleri anlama ve olumlu-olumsuz yönerge verme", "en": "understand and give positive and negative instructions", "de": "Anweisungen verstehen und selbst geben"}, "id": "en2o3"}]}, {"name": "Unit 1", "objectives": [{"area": "Kelime", "label": "Daily Routines", "desc": "Günlük rutin eylemlerini söyler.", "example": "get up, have breakfast, go to school gibi eylemleri resimden söyler.", "p": {"tr": "günlük rutin eylemlerini söyleme", "en": "talk about daily routines", "de": "über den Tagesablauf sprechen"}, "id": "en2o4"}, {"area": "Dil yapısı", "label": "Telling the time", "desc": "Saati sorar ve söyler.", "example": "What time is it? – It's half past seven.", "p": {"tr": "saati sorup söyleme", "en": "ask and tell the time", "de": "nach der Uhrzeit fragen und sie sagen"}, "id": "en2o5"}, {"area": "Dil yapısı", "label": "Present Simple 3rd Person", "desc": "Başka birinin günlük rutinini -s ekiyle anlatır.", "example": "She gets up at seven o'clock. He goes to school by bus.", "p": {"tr": "başka birinin günlük rutinini anlatma", "en": "describe someone else's daily routine", "de": "den Tagesablauf einer anderen Person beschreiben"}, "id": "en2o6"}]}, {"name": "Unit 2", "objectives": [{"area": "Kelime", "label": "Animals", "desc": "Hayvanları adlandırır.", "example": "Resimdeki hayvanları doğru adlandırır.", "p": {"tr": "hayvanları adlandırma", "en": "name animals", "de": "Tiere benennen"}, "id": "en2o7"}, {"area": "Dil yapısı", "label": "Likes / doesn't like", "desc": "Bir kişinin ya da hayvanın neyi sevdiğini ve sevmediğini söyler.", "example": "My cat likes fish. It doesn't like water.", "p": {"tr": "birinin neyi sevip sevmediğini söyleme", "en": "say what someone likes and doesn't like", "de": "sagen, was jemand mag und nicht mag"}, "id": "en2o8"}, {"area": "Dil yapısı", "label": "Questions and answers with Does ... like?", "desc": "Does ... like ...? sorusunu sorar ve cevaplar.", "example": "Does your dog like bones? – Yes, it does.", "p": {"tr": "Does … like…? sorusunu sorup cevaplama", "en": "ask and answer “Does … like…?” questions", "de": "Fragen mit „Does … like…?“ stellen und beantworten"}, "id": "en2o9"}]}, {"name": "Unit 3", "objectives": [{"area": "Kelime", "label": "Places in a Town", "desc": "Şehirdeki yerleri adlandırır.", "example": "Resimdeki yerleri (park, shop, library vb.) doğru adlandırır.", "p": {"tr": "şehirdeki yerleri adlandırma", "en": "name places in a town", "de": "Orte in der Stadt benennen"}, "id": "en2o10"}, {"area": "Dil yapısı", "label": "Has ... got ...?", "desc": "Has ... got ...? diye sorar ve kısa cevap verir.", "example": "Has your town got a park? – Yes, it has.", "p": {"tr": "Has … got…? sorusunu sorup kısa cevap verme", "en": "ask and answer “Has … got…?” questions", "de": "Fragen mit „Has … got…?“ stellen und kurz beantworten"}, "id": "en2o11"}, {"area": "Dil yapısı", "label": "Prepositions", "desc": "Yer edatlarıyla bir yerin konumunu söyler.", "example": "The café is next to the bank. The park is behind the school.", "p": {"tr": "yer edatlarıyla konum söyleme", "en": "describe where places are with prepositions", "de": "mit Präpositionen beschreiben, wo etwas liegt"}, "id": "en2o12"}]}, {"name": "Unit 4", "objectives": [{"area": "Kelime", "label": "Food", "desc": "Yiyecek ve içecekleri adlandırır.", "example": "Resimdeki yiyecek ve içecekleri doğru adlandırır.", "p": {"tr": "yiyecek ve içecekleri adlandırma", "en": "name food and drinks", "de": "Essen und Getränke benennen"}, "id": "en2o13"}, {"area": "Dil yapısı", "label": "Would you like ...?", "desc": "Bir şey ikram eder ve kibarca cevap verir.", "example": "Would you like some juice? – Yes, please. / No, thank you.", "p": {"tr": "kibarca ikram etme ve cevap verme", "en": "offer things politely and reply", "de": "höflich etwas anbieten und antworten"}, "id": "en2o14"}, {"area": "Dil yapısı", "label": "Are there / Is there any ...?", "desc": "Is there any ...? / Are there any ...? diye sorar ve cevaplar.", "example": "Are there any eggs? – No, there aren't. Is there any milk? – Yes, there is.", "p": {"tr": "Is there any…? / Are there any…? sorularını sorup cevaplama", "en": "ask and answer “Is there any…?” and “Are there any…?”", "de": "Fragen mit „Is there any…?“ und „Are there any…?“ stellen und beantworten"}, "id": "en2o15"}]}, {"name": "Unit 5", "objectives": [{"area": "Kelime", "label": "Furniture", "desc": "Mobilyaları adlandırır.", "example": "Resimdeki mobilyaları (sofa, cupboard, lamp vb.) doğru adlandırır.", "p": {"tr": "mobilyaları adlandırma", "en": "name furniture", "de": "Möbel benennen"}, "id": "en2o16"}, {"area": "Dil yapısı", "label": "This, that, these, those", "desc": "Yakındaki ve uzaktaki nesneleri tekil ve çoğul ayırarak gösterir.", "example": "This is my chair. Those are your books.", "p": {"tr": "this, that, these, those ile nesneleri gösterme", "en": "point things out with this, that, these and those", "de": "mit this, that, these und those auf Dinge zeigen"}, "id": "en2o17"}, {"area": "Dil yapısı", "label": "Whose ... is this? / Whose ... are these?", "desc": "Bir eşyanın kime ait olduğunu sorar ve söyler.", "example": "Whose bag is this? – It's Sam's.", "p": {"tr": "bir eşyanın kime ait olduğunu sorup söyleme", "en": "ask and say who things belong to", "de": "fragen und sagen, wem etwas gehört"}, "id": "en2o18"}]}, {"name": "Unit 6", "objectives": [{"area": "Kelime", "label": "The Face", "desc": "Yüzün bölümlerini adlandırır.", "example": "Yüzün bölümlerini (eyes, nose, hair vb.) gösterip doğru adlandırır.", "p": {"tr": "yüzün bölümlerini adlandırma", "en": "name parts of the face", "de": "Teile des Gesichts benennen"}, "id": "en2o19"}, {"area": "Dil yapısı", "label": "Am / Is / Are + adjective", "desc": "Kendini ve başkalarını sıfatlarla tanımlar.", "example": "I'm happy. His eyes are blue. Her hair is long.", "p": {"tr": "kendini ve başkalarını sıfatlarla tanımlama", "en": "describe themselves and others with adjectives", "de": "sich selbst und andere mit Adjektiven beschreiben"}, "id": "en2o20"}, {"area": "Dil yapısı", "label": "The months", "desc": "Ayları sırasıyla söyler, doğum gününün hangi ayda olduğunu söyler.", "example": "My birthday is in May.", "p": {"tr": "ayları ve doğum gününü söyleme", "en": "say the months and when their birthday is", "de": "die Monate nennen und sagen, wann es Geburtstag hat"}, "id": "en2o21"}, {"area": "Dil yapısı", "label": "Our, their", "desc": "our ve their ile sahiplik bildirir.", "example": "Our classroom is big. Their dog is small.", "p": {"tr": "our ve their ile sahiplik bildirme", "en": "show possession with our and their", "de": "mit our und their Besitz ausdrücken"}, "id": "en2o22"}]}, {"name": "Unit 7", "objectives": [{"area": "Kelime", "label": "Transport", "desc": "Ulaşım araçlarını adlandırır.", "example": "Resimdeki ulaşım araçlarını doğru adlandırır.", "p": {"tr": "ulaşım araçlarını adlandırma", "en": "name types of transport", "de": "Verkehrsmittel benennen"}, "id": "en2o23"}, {"area": "Dil yapısı", "label": "I'd like to ...", "desc": "Yapmak istediği şeyi söyler.", "example": "I'd like to go by train.", "p": {"tr": "yapmak istediği şeyi söyleme", "en": "say what they would like to do", "de": "sagen, was es gern machen möchte"}, "id": "en2o24"}, {"area": "Dil yapısı", "label": "Questions and answers with verb + ing", "desc": "Birinin şu anda ne yaptığını sorar ve cevaplar.", "example": "What are you doing? – I'm riding my bike.", "p": {"tr": "birinin şu anda ne yaptığını sorup cevaplama", "en": "ask and answer what someone is doing now", "de": "fragen und beantworten, was jemand gerade macht"}, "id": "en2o25"}]}, {"name": "Unit 8", "objectives": [{"area": "Kelime", "label": "Sports", "desc": "Sporları adlandırır.", "example": "Resimdeki sporları doğru adlandırır.", "p": {"tr": "sporları adlandırma", "en": "name sports", "de": "Sportarten benennen"}, "id": "en2o26"}, {"area": "Dil yapısı", "label": "-ing forms", "desc": "Etkinlikleri -ing biçimiyle söyler.", "example": "swimming, skating, playing football", "p": {"tr": "etkinlikleri -ing biçimiyle söyleme", "en": "name activities using the -ing form", "de": "Aktivitäten mit der -ing-Form benennen"}, "id": "en2o27"}, {"area": "Dil yapısı", "label": "Like + -ing", "desc": "Yapmayı sevdiği ve sevmediği etkinlikleri söyler.", "example": "I like skating. She doesn't like swimming.", "p": {"tr": "yapmayı sevdiği ve sevmediği etkinlikleri söyleme", "en": "say which activities they like and don't like doing", "de": "sagen, welche Aktivitäten es gern und nicht gern macht"}, "id": "en2o28"}]}, {"name": "Unit 9", "objectives": [{"area": "Kelime", "label": "Holidays", "desc": "Tatil yerlerini ve etkinliklerini söyler.", "example": "Resimdeki tatil kelimelerini doğru adlandırır.", "p": {"tr": "tatil yerlerini ve etkinliklerini söyleme", "en": "talk about holiday places and activities", "de": "über Urlaubsorte und -aktivitäten sprechen"}, "id": "en2o29"}, {"area": "Dil yapısı", "label": "Can for requests", "desc": "Can I ...? / Can you ...? ile izin ister ve rica eder.", "example": "Can I have an ice cream, please? Can you help me?", "p": {"tr": "Can I…? / Can you…? ile izin isteme ve rica etme", "en": "ask for permission and make requests with “Can I…?” and “Can you…?”", "de": "mit „Can I…?“ und „Can you…?“ um Erlaubnis und Hilfe bitten"}, "id": "en2o30"}]}], "grade": "2"}, {"id": "en3", "builtIn": true, "group": "İngilizce", "title": "3. Sınıf İngilizce", "subtitle": "Super Minds Level 3 · A1 Movers", "note": "Kitap: Super Minds Level 3 (2nd Edition). Hedef düzey: A1 (Cambridge YLE A1 Movers).", "subject": {"tr": "İngilizce", "en": "English", "de": "Englisch"}, "scale": [{"n": 0, "label": "Henüz gözlenmedi", "tr": "Bu kazanımla ilgili çalışma henüz gözlenmedi.", "en": "Not yet observed for this objective."}, {"n": 1, "label": "Başlangıç", "tr": "Kelimeleri ve yapıyı okurken ya da dinlerken tanır, kullanmaya başlıyor.", "en": "Recognises the words and structure when reading or listening and is starting to use them."}, {"n": 2, "label": "Destekle yapıyor", "tr": "Bazı kelimeleri kullanır. Yapıyı tanır, cümle kurarken örneği tekrar eder ya da sık hata yapar.", "en": "Uses some of the words. Recognises the structure; repeats the model or makes frequent errors when making sentences."}, {"n": 3, "label": "Gelişiyor", "tr": "Kelimeleri bilir, yazımda zaman zaman zorlanır. Yapıyı örnek üzerinden kullanır, kendi cümlesini kurarken desteğe ihtiyaç duyar.", "en": "Knows the words but sometimes finds spelling difficult. Uses the structure from a model and needs support to make their own sentences."}, {"n": 4, "label": "İyi", "tr": "Kelimeleri çoğunlukla doğru kullanır. Yapıyla cümle kurar, ara sıra küçük hatalar yapar.", "en": "Uses the words mostly correctly. Makes sentences with the structure, with occasional small errors."}, {"n": 5, "label": "Çok iyi", "tr": "Kelimeleri konuşurken ve yazarken doğru kullanır. Yapıyla kendi cümlelerini kurar, soru sorar ve cevaplar; küçük hatalar anlamı etkilemez.", "en": "Uses the words correctly in speaking and writing. Makes their own sentences with the structure, asks and answers questions; small errors do not affect meaning."}], "units": [{"name": "Intro", "objectives": [{"area": "Kelime", "label": "Revision of Numbers", "desc": "Sayıları sorar ve söyler.", "example": "Sayıları 100'e kadar doğru söyler ve yazar.", "p": {"tr": "100'e kadar sayıları söyleme ve yazma", "en": "say and write numbers up to 100", "de": "Zahlen bis 100 sagen und schreiben"}, "id": "en3o1"}, {"area": "Dil yapısı", "label": "Be good at + ing", "desc": "İyi olduğu ve olmadığı şeyleri söyler.", "example": "I'm good at drawing. I'm not good at singing.", "p": {"tr": "iyi olduğu ve olmadığı şeyleri söyleme", "en": "say what they are good and not good at", "de": "sagen, was es gut und nicht so gut kann"}, "id": "en3o2"}, {"area": "Dil yapısı", "label": "Possessive apostrophe", "desc": "Sahipliği 's ile bildirir.", "example": "This is my sister's bike.", "p": {"tr": "'s ile sahiplik bildirme", "en": "show possession with 's", "de": "mit „'s“ Besitz ausdrücken"}, "id": "en3o3"}]}, {"name": "Unit 1", "objectives": [{"area": "Kelime", "label": "School Subjects", "desc": "Okul derslerini adlandırır.", "example": "Okul derslerini (maths, science, art vb.) doğru söyler ve yazar.", "p": {"tr": "okul derslerini adlandırma", "en": "name school subjects", "de": "Schulfächer benennen"}, "id": "en3o4"}, {"area": "Dil yapısı", "label": "Like / Don't like + ing", "desc": "Sevdiği ve sevmediği okul etkinliklerini anlatır.", "example": "I like doing maths. I don't like writing stories.", "p": {"tr": "sevdiği ve sevmediği okul etkinliklerini anlatma", "en": "talk about school activities they like and don't like", "de": "über Schulaktivitäten sprechen, die es mag und nicht mag"}, "id": "en3o5"}, {"area": "Dil yapısı", "label": "Have to + infinitive", "desc": "Yapması gereken şeyleri söyler ve sorar.", "example": "I have to do my homework. Do you have to wear a uniform?", "p": {"tr": "yapması gereken şeyleri söyleme ve sorma", "en": "talk about what they have to do", "de": "sagen und fragen, was man tun muss"}, "id": "en3o6"}]}, {"name": "Unit 2", "objectives": [{"area": "Kelime", "label": "Food", "desc": "Yiyecek ve içecekleri adlandırır.", "example": "Yiyecek ve içecekleri doğru söyler ve yazar.", "p": {"tr": "yiyecek ve içecekleri söyleme ve yazma", "en": "say and write food and drink words", "de": "Wörter für Essen und Getränke sagen und schreiben"}, "id": "en3o7"}, {"area": "Dil yapısı", "label": "Questions and answers with some and any", "desc": "some ve any ile soru sorar ve cevaplar.", "example": "Is there any milk? – Yes, there's some milk. There aren't any eggs.", "p": {"tr": "some ve any ile soru sorup cevaplama", "en": "ask and answer questions with some and any", "de": "Fragen mit some und any stellen und beantworten"}, "id": "en3o8"}, {"area": "Dil yapısı", "label": "Suggestions", "desc": "Öneri sunar ve öneriye cevap verir.", "example": "Let's make a pizza! – Good idea!", "p": {"tr": "öneri sunma ve öneriye cevap verme", "en": "make and respond to suggestions", "de": "Vorschläge machen und darauf reagieren"}, "id": "en3o9"}, {"area": "Dil yapısı", "label": "My favourite", "desc": "En sevdiği şeyi ve nedenini söyler.", "example": "My favourite food is pasta because it's delicious.", "p": {"tr": "en sevdiği şeyi ve nedenini söyleme", "en": "say what their favourite things are and why", "de": "Lieblingsdinge nennen und begründen"}, "id": "en3o10"}, {"area": "Dil yapısı", "label": "Identify pictures", "desc": "Resimdeki yiyecekleri ve nesneleri tanımlar.", "example": "In picture 2 there's some cheese and there are three apples.", "p": {"tr": "resimdeki nesneleri tanımlama", "en": "describe what is in a picture", "de": "beschreiben, was auf einem Bild ist"}, "id": "en3o11"}]}, {"name": "Unit 3", "objectives": [{"area": "Kelime", "label": "Daily Tasks", "desc": "Ev işlerini ve günlük görevleri adlandırır.", "example": "make my bed, tidy my room gibi görevleri doğru söyler.", "p": {"tr": "ev işlerini ve günlük görevleri adlandırma", "en": "name daily tasks and chores", "de": "Aufgaben im Haushalt benennen"}, "id": "en3o12"}, {"area": "Dil yapısı", "label": "Telling the time", "desc": "Saati çeyrek ve dakikalarla sorar ve söyler.", "example": "What time is it? – It's quarter to nine.", "p": {"tr": "saati çeyrek ve dakikalarla söyleme", "en": "tell the time with quarters and minutes", "de": "die Uhrzeit mit Viertel und Minuten sagen"}, "id": "en3o13"}, {"area": "Dil yapısı", "label": "Present continuous", "desc": "Şu anda yapılan eylemleri anlatır.", "example": "He's tidying his room now. They're washing the car.", "p": {"tr": "şu anda yapılan eylemleri anlatma", "en": "describe actions happening now", "de": "beschreiben, was gerade passiert"}, "id": "en3o14"}, {"area": "Dil yapısı", "label": "Adverbs for time", "desc": "Zaman ve sıklık zarflarıyla rutinlerini anlatır.", "example": "I always make my bed. I never wash the dishes.", "p": {"tr": "sıklık zarflarıyla rutinlerini anlatma", "en": "talk about routines with adverbs of frequency", "de": "mit Häufigkeitsadverbien über Gewohnheiten sprechen"}, "id": "en3o15"}]}, {"name": "Unit 4", "objectives": [{"area": "Kelime", "label": "Towns", "desc": "Şehirdeki yerleri ve binaları adlandırır.", "example": "Şehirdeki yerleri doğru söyler ve yazar.", "p": {"tr": "şehirdeki yerleri söyleme ve yazma", "en": "say and write places in a town", "de": "Orte in der Stadt sagen und schreiben"}, "id": "en3o16"}, {"area": "Dil yapısı", "label": "Prepositions", "desc": "Yer edatlarıyla konum tarif eder.", "example": "The library is opposite the park, between the bank and the café.", "p": {"tr": "yer edatlarıyla konum tarif etme", "en": "describe locations with prepositions", "de": "mit Präpositionen Orte beschreiben"}, "id": "en3o17"}, {"area": "Dil yapısı", "label": "Be going to + infinitive of purpose", "desc": "Bir yere gitme amacını söyler.", "example": "I'm going to the bakery to buy some bread.", "p": {"tr": "bir yere gitme amacını söyleme", "en": "say why they are going somewhere", "de": "sagen, warum man irgendwohin geht"}, "id": "en3o18"}]}, {"name": "Unit 5", "objectives": [{"area": "Kelime", "label": "Sea Creatures", "desc": "Deniz canlılarını adlandırır.", "example": "Deniz canlılarını (shark, octopus, jellyfish vb.) doğru söyler ve yazar.", "p": {"tr": "deniz canlılarını adlandırma", "en": "name sea creatures", "de": "Meerestiere benennen"}, "id": "en3o19"}, {"area": "Dil yapısı", "label": "Was / Were", "desc": "Geçmişteki bir durumu was / were ile anlatır.", "example": "The shark was big. There were lots of fish.", "p": {"tr": "geçmişteki durumları was / were ile anlatma", "en": "describe the past with was and were", "de": "mit was und were über die Vergangenheit sprechen"}, "id": "en3o20"}, {"area": "Dil yapısı", "label": "Questions and answers with was / were", "desc": "Was ...? / Were ...? diye sorar ve cevaplar.", "example": "Was it scary? – No, it wasn't. Were they at the beach? – Yes, they were.", "p": {"tr": "Was…? / Were…? sorularını sorup cevaplama", "en": "ask and answer questions with was and were", "de": "Fragen mit was und were stellen und beantworten"}, "id": "en3o21"}]}, {"name": "Unit 6", "objectives": [{"area": "Kelime", "label": "Technology", "desc": "Teknolojik araçları adlandırır.", "example": "Teknolojik araçları (tablet, laptop, camera vb.) doğru söyler ve yazar.", "p": {"tr": "teknolojik araçları adlandırma", "en": "name technology items", "de": "technische Geräte benennen"}, "id": "en3o22"}, {"area": "Dil yapısı", "label": "Comparatives", "desc": "İki şeyi karşılaştırır.", "example": "My tablet is smaller than your laptop.", "p": {"tr": "iki şeyi karşılaştırma", "en": "compare two things", "de": "zwei Dinge vergleichen"}, "id": "en3o23"}, {"area": "Dil yapısı", "label": "Superlatives", "desc": "Bir grubun en ... olanını söyler.", "example": "This is the biggest computer. That phone is the most expensive.", "p": {"tr": "bir grubun en … olanını söyleme", "en": "describe the most … in a group with superlatives", "de": "mit dem Superlativ das Größte, Schnellste usw. einer Gruppe beschreiben"}, "id": "en3o24"}]}, {"name": "Unit 7", "objectives": [{"area": "Kelime", "label": "Health", "desc": "Sağlık sorunlarıyla ilgili kelimeleri söyler.", "example": "I've got a headache / a cold gibi ifadeleri doğru kullanır.", "p": {"tr": "sağlık sorunlarını anlatan ifadeleri kullanma", "en": "talk about health problems", "de": "über Gesundheitsprobleme sprechen"}, "id": "en3o25"}, {"area": "Dil yapısı", "label": "Past simple: regular verbs", "desc": "Geçmişteki olayları düzenli fiillerle anlatır.", "example": "I stayed in bed yesterday. My mum called the doctor.", "p": {"tr": "geçmiş olayları düzenli fiillerle anlatma", "en": "talk about the past with regular verbs", "de": "mit regelmäßigen Verben über die Vergangenheit sprechen"}, "id": "en3o26"}, {"area": "Dil yapısı", "label": "Past simple: irregular verbs", "desc": "Geçmişteki olayları düzensiz fiillerle anlatır.", "example": "I went to the doctor. She gave me some medicine.", "p": {"tr": "geçmiş olayları düzensiz fiillerle anlatma", "en": "talk about the past with irregular verbs", "de": "mit unregelmäßigen Verben über die Vergangenheit sprechen"}, "id": "en3o27"}]}, {"name": "Unit 8", "objectives": [{"area": "Kelime", "label": "Countries", "desc": "Ülkeleri adlandırır.", "example": "Ülke adlarını doğru söyler ve yazar.", "p": {"tr": "ülke adlarını söyleme ve yazma", "en": "say and write country names", "de": "Ländernamen sagen und schreiben"}, "id": "en3o28"}, {"area": "Dil yapısı", "label": "Negatives with past simple", "desc": "Geçmişte yapmadığı şeyleri söyler.", "example": "We didn't go to Italy. I didn't see the Eiffel Tower.", "p": {"tr": "geçmişte yapmadığı şeyleri söyleme", "en": "say what they didn't do in the past", "de": "sagen, was man in der Vergangenheit nicht gemacht hat"}, "id": "en3o29"}, {"area": "Dil yapısı", "label": "Questions and answers with past simple", "desc": "Geçmişle ilgili soru sorar ve cevaplar.", "example": "Did you visit Spain? – Yes, I did. Where did you go?", "p": {"tr": "geçmişle ilgili soru sorup cevaplama", "en": "ask and answer questions about the past", "de": "Fragen zur Vergangenheit stellen und beantworten"}, "id": "en3o30"}]}, {"name": "Unit 9", "objectives": [{"area": "Kelime", "label": "Weather, Clothes", "desc": "Hava durumu ve giysi kelimelerini söyler.", "example": "Hava durumunu ve giysileri doğru söyler ve yazar.", "p": {"tr": "hava durumu ve giysi kelimelerini kullanma", "en": "talk about weather and clothes", "de": "über Wetter und Kleidung sprechen"}, "id": "en3o31"}, {"area": "Dil yapısı", "label": "Future with be going to + infinitive", "desc": "Planlarını ve tahminlerini going to ile anlatır.", "example": "It's going to rain. I'm going to wear my coat.", "p": {"tr": "planlarını ve tahminlerini going to ile anlatma", "en": "talk about plans and predictions with going to", "de": "mit going to über Pläne und Vorhersagen sprechen"}, "id": "en3o32"}, {"area": "Dil yapısı", "label": "Questions and answers with be going to + infinitive", "desc": "Are you going to ...? diye sorar ve cevaplar.", "example": "Are you going to visit your grandma? – Yes, I am.", "p": {"tr": "Are you going to…? sorusunu sorup cevaplama", "en": "ask and answer “Are you going to…?” questions", "de": "Fragen mit „Are you going to…?“ stellen und beantworten"}, "id": "en3o33"}, {"area": "Dil yapısı", "label": "Wh- questions", "desc": "Soru kelimeleriyle (what, where, when, who) soru sorar.", "example": "What are you going to wear? Where are you going to go?", "p": {"tr": "soru kelimeleriyle soru sorma", "en": "ask questions with what, where, when and who", "de": "Fragen mit what, where, when und who stellen"}, "id": "en3o34"}]}], "grade": "3"}, {"id": "en4", "builtIn": true, "group": "İngilizce", "title": "4. Sınıf İngilizce", "subtitle": "Super Minds Level 4 · A2 Flyers", "note": "Kitap: Super Minds Level 4 (2nd Edition). Hedef düzey: A2 (Cambridge YLE A2 Flyers).", "subject": {"tr": "İngilizce", "en": "English", "de": "Englisch"}, "scale": [{"n": 0, "label": "Henüz gözlenmedi", "tr": "Bu kazanımla ilgili çalışma henüz gözlenmedi.", "en": "Not yet observed for this objective."}, {"n": 1, "label": "Başlangıç", "tr": "Yapıyı okurken ya da dinlerken tanır, kendi cümlelerinde kullanmaya başlıyor.", "en": "Recognises the structure when reading or listening and is starting to use it in their own sentences."}, {"n": 2, "label": "Destekle yapıyor", "tr": "Bazı kelimeleri kullanır. Yapıyı tanır, kullanırken örneğe ve desteğe ihtiyaç duyar.", "en": "Uses some of the words. Recognises the structure and needs a model and support to use it."}, {"n": 3, "label": "Gelişiyor", "tr": "Kelimeleri bilir, bağlama göre seçerken zaman zaman zorlanır. Yapıyı kontrollü etkinliklerde doğru, serbest kullanımda hatalarla kullanır.", "en": "Knows the words but sometimes finds it hard to choose the right one. Uses the structure correctly in controlled tasks, with errors in free use."}, {"n": 4, "label": "İyi", "tr": "Kelimeleri çoğunlukla doğru kullanır. Yapıyı konuşurken ve yazarken kullanır; küçük hatalar anlamı bozmaz.", "en": "Uses the words mostly correctly. Uses the structure in speaking and writing; small errors do not affect meaning."}, {"n": 5, "label": "Çok iyi", "tr": "Kelimeleri bağlama uygun ve doğru yazımla kullanır. Yapıyla birbirine bağlı cümleler kurar, konuşurken ve yazarken doğru ve rahat kullanır.", "en": "Uses the words appropriately and spells them correctly. Makes connected sentences with the structure and uses it accurately and confidently in speaking and writing."}], "units": [{"name": "Intro", "objectives": [{"area": "Kelime", "label": "At Town Events", "desc": "Şehir etkinlikleriyle ilgili kelimeleri kullanır.", "example": "Etkinlik kelimelerini (parade, fireworks, stall vb.) doğru kullanır ve yazar.", "p": {"tr": "şehir etkinlikleriyle ilgili kelimeleri kullanma", "en": "use words for town events", "de": "Wörter zu Stadtfesten verwenden"}, "id": "en4o1"}, {"area": "Dil yapısı", "label": "Present simple questions", "desc": "Geniş zamanda soru sorar ve cevaplar.", "example": "What time does the parade start? – It starts at five.", "p": {"tr": "geniş zamanda soru sorup cevaplama", "en": "ask and answer questions in the present simple", "de": "Fragen im Present Simple stellen und beantworten"}, "id": "en4o2"}, {"area": "Dil yapısı", "label": "Past simple questions", "desc": "Geçmiş zamanda soru sorar ve cevaplar.", "example": "Where did you go last weekend? – I went to the festival.", "p": {"tr": "geçmiş zamanda soru sorup cevaplama", "en": "ask and answer questions in the past simple", "de": "Fragen im Past Simple stellen und beantworten"}, "id": "en4o3"}]}, {"name": "Unit 1", "objectives": [{"area": "Kelime", "label": "Knights and Queens", "desc": "Şato ve şövalye temalı kelimeleri kullanır.", "example": "Tema kelimelerini (castle, knight, sword vb.) doğru kullanır ve yazar.", "p": {"tr": "şato ve şövalye temalı kelimeleri kullanma", "en": "use words about castles and knights", "de": "Wörter zu Burgen und Rittern verwenden"}, "id": "en4o4"}, {"area": "Dil yapısı", "label": "Must / Mustn't", "desc": "Kuralları must / mustn't ile anlatır.", "example": "You must be quiet. You mustn't touch the sword.", "p": {"tr": "kuralları must / mustn't ile anlatma", "en": "explain rules with must and mustn't", "de": "mit must und mustn't Regeln erklären"}, "id": "en4o5"}, {"area": "Dil yapısı", "label": "Direct and indirect objects", "desc": "İki nesneli cümle kurar.", "example": "The queen gave the knight a horse. He showed her the map.", "p": {"tr": "iki nesneli cümle kurma", "en": "make sentences with direct and indirect objects", "de": "Sätze mit direktem und indirektem Objekt bilden"}, "id": "en4o6"}]}, {"name": "Unit 2", "objectives": [{"area": "Kelime", "label": "The Countryside", "desc": "Kırsal alanla ilgili kelimeleri kullanır.", "example": "Kırsal alan kelimelerini (field, river, hill vb.) doğru kullanır ve yazar.", "p": {"tr": "kırsal alanla ilgili kelimeleri kullanma", "en": "use words about the countryside", "de": "Wörter zum Thema Land und Natur verwenden"}, "id": "en4o7"}, {"area": "Dil yapısı", "label": "Past simple revision; connectors", "desc": "Geçmiş olayları bağlaçlarla sıralı anlatır.", "example": "First we walked to the river, then we had lunch and after that we played.", "p": {"tr": "geçmiş olayları bağlaçlarla sıralı anlatma", "en": "tell past events in order using connectors", "de": "vergangene Ereignisse mit Bindewörtern der Reihe nach erzählen"}, "id": "en4o8"}, {"area": "Dil yapısı", "label": "Could / Couldn't", "desc": "Geçmişte yapabildiği ve yapamadığı şeyleri söyler.", "example": "I couldn't swim when I was five, but I could ride a bike.", "p": {"tr": "geçmişte yapabildiği ve yapamadığı şeyleri söyleme", "en": "say what they could and couldn't do in the past", "de": "sagen, was man früher konnte und nicht konnte"}, "id": "en4o9"}]}, {"name": "Unit 3", "objectives": [{"area": "Kelime", "label": "Emergencies", "desc": "Acil durumlarla ilgili kelimeleri kullanır.", "example": "Acil durum kelimelerini (fire engine, ambulance, firefighter vb.) doğru kullanır.", "p": {"tr": "acil durumlarla ilgili kelimeleri kullanma", "en": "use words about emergencies", "de": "Wörter zu Notfällen verwenden"}, "id": "en4o10"}, {"area": "Dil yapısı", "label": "Past continuous", "desc": "Geçmişte devam eden eylemleri anlatır.", "example": "The firefighters were climbing the ladder.", "p": {"tr": "geçmişte devam eden eylemleri anlatma", "en": "describe actions in progress in the past", "de": "beschreiben, was in der Vergangenheit gerade passierte"}, "id": "en4o11"}, {"area": "Dil yapısı", "label": "Past continuous questions", "desc": "Geçmişte devam eden eylemlerle ilgili soru sorar ve cevaplar.", "example": "What were you doing at 6 o'clock? – I was reading.", "p": {"tr": "geçmişte devam eden eylemlerle ilgili soru sorup cevaplama", "en": "ask and answer questions about actions in progress in the past", "de": "Fragen dazu stellen und beantworten, was jemand gerade machte"}, "id": "en4o12"}]}, {"name": "Unit 4", "objectives": [{"area": "Kelime", "label": "At the Train Station", "desc": "Tren istasyonuyla ilgili kelimeleri kullanır.", "example": "İstasyon kelimelerini (platform, ticket, timetable vb.) doğru kullanır.", "p": {"tr": "tren istasyonuyla ilgili kelimeleri kullanma", "en": "use words about train stations", "de": "Wörter rund um den Bahnhof verwenden"}, "id": "en4o13"}, {"area": "Dil yapısı", "label": "At / in / on", "desc": "Zaman edatlarını doğru kullanır.", "example": "at 6 o'clock, on Monday, in July", "p": {"tr": "zaman edatlarını doğru kullanma", "en": "use the time prepositions at, in and on correctly", "de": "die Zeitpräpositionen at, in und on richtig verwenden"}, "id": "en4o14"}, {"area": "Dil yapısı", "label": "Past continuous and past simple", "desc": "İki geçmiş zamanı birlikte kullanarak olay anlatır.", "example": "I was waiting for the train when I saw my friend.", "p": {"tr": "iki geçmiş zamanı birlikte kullanarak olay anlatma", "en": "tell a story using the past continuous and past simple together", "de": "mit Past Continuous und Past Simple eine Geschichte erzählen"}, "id": "en4o15"}]}, {"name": "Unit 5", "objectives": [{"area": "Kelime", "label": "Hair and Face", "desc": "Saç ve yüz özelliklerini tanımlar.", "example": "curly hair, a beard, freckles gibi özellikleri doğru kullanır.", "p": {"tr": "saç ve yüz özelliklerini tanımlama", "en": "describe hair and faces", "de": "Haare und Gesichter beschreiben"}, "id": "en4o16"}, {"area": "Dil yapısı", "label": "Used to", "desc": "Geçmişteki alışkanlıkları ve durumları anlatır.", "example": "My dad used to have long hair.", "p": {"tr": "geçmişteki alışkanlıkları used to ile anlatma", "en": "talk about past habits with used to", "de": "mit used to über frühere Gewohnheiten sprechen"}, "id": "en4o17"}, {"area": "Dil yapısı", "label": "Had to", "desc": "Geçmişte yapmak zorunda olduğu şeyleri söyler.", "example": "I had to wear glasses when I was six.", "p": {"tr": "geçmişte yapmak zorunda olduğu şeyleri söyleme", "en": "say what they had to do in the past", "de": "sagen, was man früher tun musste"}, "id": "en4o18"}]}, {"name": "Unit 6", "objectives": [{"area": "Kelime", "label": "Animal Bodies", "desc": "Hayvanların vücut bölümlerini adlandırır.", "example": "Hayvan vücut kelimelerini (wing, tail, fur vb.) doğru kullanır.", "p": {"tr": "hayvanların vücut bölümlerini adlandırma", "en": "name parts of animals' bodies", "de": "Körperteile von Tieren benennen"}, "id": "en4o19"}, {"area": "Dil yapısı", "label": "Comparatives and superlatives", "desc": "Hayvanları ve nesneleri karşılaştırır.", "example": "An elephant is heavier than a horse. The cheetah is the fastest animal.", "p": {"tr": "hayvanları ve nesneleri karşılaştırma", "en": "compare animals and objects", "de": "Tiere und Dinge vergleichen"}, "id": "en4o20"}, {"area": "Dil yapısı", "label": "It looks like ...", "desc": "Bir şeyin neye benzediğini anlatır.", "example": "It looks like a dragon.", "p": {"tr": "bir şeyin neye benzediğini anlatma", "en": "say what something looks like", "de": "sagen, wie etwas aussieht"}, "id": "en4o21"}]}, {"name": "Unit 7", "objectives": [{"area": "Kelime", "label": "Musical Instruments", "desc": "Müzik aletlerini adlandırır.", "example": "Müzik aletlerini doğru söyler ve yazar.", "p": {"tr": "müzik aletlerini söyleme ve yazma", "en": "say and write the names of musical instruments", "de": "Musikinstrumente sagen und schreiben"}, "id": "en4o22"}, {"area": "Dil yapısı", "label": "Possessive pronouns", "desc": "mine, yours, his, hers gibi zamirleri kullanır.", "example": "Is this guitar yours? – No, it's hers.", "p": {"tr": "mine, yours, his, hers gibi zamirleri kullanma", "en": "use possessive pronouns like mine and yours", "de": "Possessivpronomen wie mine und yours verwenden"}, "id": "en4o23"}, {"area": "Dil yapısı", "label": "Who / which / where", "desc": "who, which, where ile kişi, nesne ve yer tanımlar.", "example": "This is the girl who plays the drums. That's the room where we practise.", "p": {"tr": "who, which, where ile kişi, nesne ve yer tanımlama", "en": "describe people, things and places with who, which and where", "de": "mit who, which und where Personen, Dinge und Orte beschreiben"}, "id": "en4o24"}]}, {"name": "Unit 8", "objectives": [{"area": "Kelime", "label": "Space", "desc": "Uzayla ilgili kelimeleri kullanır.", "example": "Uzay kelimelerini (planet, rocket, astronaut vb.) doğru kullanır ve yazar.", "p": {"tr": "uzayla ilgili kelimeleri kullanma", "en": "use words about space", "de": "Wörter zum Thema Weltraum verwenden"}, "id": "en4o25"}, {"area": "Dil yapısı", "label": "Will", "desc": "Gelecekle ilgili tahminde bulunur.", "example": "People will live on Mars. I won't be an astronaut.", "p": {"tr": "gelecekle ilgili tahminde bulunma", "en": "make predictions about the future with will", "de": "mit will Vorhersagen über die Zukunft machen"}, "id": "en4o26"}, {"area": "Dil yapısı", "label": "Adverbs", "desc": "Eylemleri zarflarla tanımlar.", "example": "The rocket moved quickly. The astronaut walked slowly.", "p": {"tr": "eylemleri zarflarla tanımlama", "en": "describe actions with adverbs", "de": "Handlungen mit Adverbien beschreiben"}, "id": "en4o27"}]}, {"name": "Unit 9", "objectives": [{"area": "Kelime", "label": "Holiday Activities", "desc": "Tatil etkinliklerini anlatır.", "example": "Tatil etkinliklerini (go camping, go sailing vb.) doğru kullanır.", "p": {"tr": "tatil etkinliklerini anlatma", "en": "talk about holiday activities", "de": "über Urlaubsaktivitäten sprechen"}, "id": "en4o28"}, {"area": "Dil yapısı", "label": "A bottle / can / loaf / packet / piece of and some", "desc": "Miktar ifadelerini doğru kullanır.", "example": "a bottle of water, a loaf of bread, a piece of cake, some cheese", "p": {"tr": "miktar ifadelerini doğru kullanma", "en": "use quantity expressions like a bottle of and a piece of", "de": "Mengenangaben wie a bottle of und a piece of verwenden"}, "id": "en4o29"}, {"area": "Dil yapısı", "label": "How much ...? / How many ...?", "desc": "How much ...? / How many ...? diye sorar ve cevaplar.", "example": "How much milk do we need? How many apples are there?", "p": {"tr": "How much…? / How many…? sorularını sorup cevaplama", "en": "ask and answer “How much…?” and “How many…?” questions", "de": "Fragen mit „How much…?“ und „How many…?“ stellen und beantworten"}, "id": "en4o30"}]}], "grade": "4"}, {"id": "de0", "builtIn": true, "draft": true, "group": "Almanca", "title": "Anaokulu (4–5 yaş) Almanca", "subtitle": "Spiel mit Leo 1", "note": "Yıllık plandan oluşturulan taslak rubrik.", "subject": {"tr": "Almanca", "en": "German", "de": "Deutsch"}, "scale": [{"n": 0, "label": "Henüz gözlenmedi", "tr": "Bu kazanımla ilgili çalışma henüz gözlenmedi.", "en": "Not yet observed for this objective."}, {"n": 1, "label": "Başlangıç", "tr": "Kelimeleri dinlerken tanımaya başlıyor; şarkıyı dinleyerek takip eder.", "en": "Is starting to recognise the words when listening; follows the song by listening."}, {"n": 2, "label": "Destekle yapıyor", "tr": "Kelimeleri gösterildiğinde tanır, öğretmenini tekrar ederek söyler.", "en": "Recognises the words when shown and says them by repeating the teacher."}, {"n": 3, "label": "Gelişiyor", "tr": "Kelimeleri gösterir ve resim desteğiyle bir kısmını söyler; şarkının bir bölümüne katılır.", "en": "Points to the words and says some of them with picture support; joins in with part of the song."}, {"n": 4, "label": "İyi", "tr": "Kelimelerin çoğunu tanır ve söyler; şarkının büyük kısmına katılır.", "en": "Recognises and says most of the words; joins in with most of the song."}, {"n": 5, "label": "Çok iyi", "tr": "Kelimeleri tanır ve kendiliğinden söyler; şarkıya ve oyunlara isteyerek katılır.", "en": "Recognises the words and says them on their own; joins songs and games eagerly."}], "units": [{"name": "Einstieg: Hallo", "objectives": [{"area": "İletişim", "label": "Hallo, Ich heiße…, Wie heißt du?, Tschüss", "desc": "Selamlaşır, vedalaşır, adını söyler ve sorar.", "example": null, "p": {"tr": "selamlaşma, vedalaşma ve adını söyleme", "en": "greet, say goodbye and say their name", "de": "begrüßen, sich verabschieden und den eigenen Namen sagen"}, "id": "de0o1"}, {"area": "Şarkı", "label": "„Hallo“ / „Tschüss“", "desc": "Giriş ve çıkış şarkılarını söyler.", "example": null, "p": {"tr": "giriş ve çıkış şarkılarını söyleme", "en": "sing the hello and goodbye songs", "de": "das Begrüßungs- und das Abschiedslied singen"}, "id": "de0o2"}]}, {"name": "Lektion 1: Aua! Aua!", "objectives": [{"area": "Kelime", "label": "das Auge, die Nase, der Mund, das Ohr", "desc": "Yüz organlarını gösterir ve adlandırır.", "example": null, "p": {"tr": "yüz organlarını gösterip adlandırma", "en": "point to and name parts of the face", "de": "Teile des Gesichts zeigen und benennen"}, "id": "de0o3"}, {"area": "Şarkı", "label": "„Das bin ich“", "desc": "“Das bin ich” şarkısını söyler.", "example": null, "p": {"tr": "“Das bin ich” şarkısını söyleme", "en": "sing the song “Das bin ich”", "de": "das Lied „Das bin ich“ singen"}, "id": "de0o4"}, {"area": "Renk ve sayı", "label": "Gelb; 1, 2, 3", "desc": "Sarı rengi ve 1–3 sayılarını tanır ve söyler.", "example": null, "p": {"tr": "sarı rengi ve 1–3 sayılarını söyleme", "en": "say the colour yellow and the numbers 1 to 3", "de": "die Farbe Gelb und die Zahlen 1 bis 3 sagen"}, "id": "de0o5"}]}, {"name": "Lektion 2: Hmmm Lecker!", "objectives": [{"area": "Kelime", "label": "der Apfel, die Banane, die Birne, die Orange", "desc": "Meyveleri tanır ve adlandırır.", "example": null, "p": {"tr": "meyveleri adlandırma", "en": "name fruit", "de": "Obstsorten benennen"}, "id": "de0o6"}, {"area": "Şarkı", "label": "„Hmmm Lecker“", "desc": "“Hmmm Lecker” şarkısını söyler.", "example": null, "p": {"tr": "“Hmmm Lecker” şarkısını söyleme", "en": "sing the song “Hmmm Lecker”", "de": "das Lied „Hmmm Lecker“ singen"}, "id": "de0o7"}, {"area": "Renk ve sayı", "label": "Orange; 4", "desc": "Turuncu rengi ve 4 sayısını tanır ve söyler.", "example": null, "p": {"tr": "turuncu rengi ve 4 sayısını söyleme", "en": "say the colour orange and the number 4", "de": "die Farbe Orange und die Zahl 4 sagen"}, "id": "de0o8"}]}, {"name": "Lektion 3: Liebe Tiere", "objectives": [{"area": "Kelime", "label": "der Hund, die Katze, der Vogel, der Hase", "desc": "Hayvanları tanır ve adlandırır.", "example": null, "p": {"tr": "hayvanları adlandırma", "en": "name animals", "de": "Tiere benennen"}, "id": "de0o9"}, {"area": "Şarkı", "label": "„Liebe Tiere“", "desc": "“Liebe Tiere” şarkısını söyler.", "example": null, "p": {"tr": "“Liebe Tiere” şarkısını söyleme", "en": "sing the song “Liebe Tiere”", "de": "das Lied „Liebe Tiere“ singen"}, "id": "de0o10"}, {"area": "Renk ve sayı", "label": "Blau; 5", "desc": "Mavi rengi ve 5 sayısını tanır ve söyler.", "example": null, "p": {"tr": "mavi rengi ve 5 sayısını söyleme", "en": "say the colour blue and the number 5", "de": "die Farbe Blau und die Zahl 5 sagen"}, "id": "de0o11"}]}, {"name": "Lektion 4: Meine Familie", "objectives": [{"area": "Kelime", "label": "der Vater, die Mutter, der Bruder, die Schwester", "desc": "Aile bireylerini tanır ve adlandırır.", "example": null, "p": {"tr": "aile bireylerini adlandırma", "en": "name family members", "de": "Familienmitglieder benennen"}, "id": "de0o12"}, {"area": "Şarkı", "label": "„Meine Familie“", "desc": "“Meine Familie” şarkısını söyler.", "example": null, "p": {"tr": "“Meine Familie” şarkısını söyleme", "en": "sing the song “Meine Familie”", "de": "das Lied „Meine Familie“ singen"}, "id": "de0o13"}, {"area": "Renk ve sayı", "label": "Grün; 6", "desc": "Yeşil rengi ve 6 sayısını tanır ve söyler.", "example": null, "p": {"tr": "yeşil rengi ve 6 sayısını söyleme", "en": "say the colour green and the number 6", "de": "die Farbe Grün und die Zahl 6 sagen"}, "id": "de0o14"}]}, {"name": "Lektion 5: Meine Spielsachen", "objectives": [{"area": "Kelime", "label": "der Ball, die Puppe, der Teddy, das Auto", "desc": "Oyuncakları tanır ve adlandırır.", "example": null, "p": {"tr": "oyuncakları adlandırma", "en": "name toys", "de": "Spielsachen benennen"}, "id": "de0o15"}, {"area": "Şarkı", "label": "„Ich spiele“", "desc": "“Ich spiele” şarkısını söyler.", "example": null, "p": {"tr": "“Ich spiele” şarkısını söyleme", "en": "sing the song “Ich spiele”", "de": "das Lied „Ich spiele“ singen"}, "id": "de0o16"}, {"area": "Renk ve sayı", "label": "Rot; 7", "desc": "Kırmızı rengi ve 7 sayısını tanır ve söyler.", "example": null, "p": {"tr": "kırmızı rengi ve 7 sayısını söyleme", "en": "say the colour red and the number 7", "de": "die Farbe Rot und die Zahl 7 sagen"}, "id": "de0o17"}]}, {"name": "Lektion 6: Alle meine Kleider", "objectives": [{"area": "Kelime", "label": "die Hose, das Kleid, der Schuh, das T-Shirt", "desc": "Giysileri tanır ve adlandırır.", "example": null, "p": {"tr": "giysileri adlandırma", "en": "name clothes", "de": "Kleidungsstücke benennen"}, "id": "de0o18"}, {"area": "Şarkı", "label": "„Alle meine Kleider“", "desc": "“Alle meine Kleider” şarkısını söyler.", "example": null, "p": {"tr": "“Alle meine Kleider” şarkısını söyleme", "en": "sing the song “Alle meine Kleider”", "de": "das Lied „Alle meine Kleider“ singen"}, "id": "de0o19"}, {"area": "Renk ve sayı", "label": "Rosa; 8, 9, 10", "desc": "Pembe rengi ve 8–10 sayılarını tanır ve söyler.", "example": null, "p": {"tr": "pembe rengi ve 8–10 sayılarını söyleme", "en": "say the colour pink and the numbers 8 to 10", "de": "die Farbe Rosa und die Zahlen 8 bis 10 sagen"}, "id": "de0o20"}]}], "grade": "ana"}, {"id": "de1", "builtIn": true, "draft": true, "group": "Almanca", "title": "1. Sınıf Almanca", "subtitle": "Spiel mit Leo 2", "note": "Yıllık plandan oluşturulan taslak rubrik. Puan ölçeği 1. sınıf İngilizce ölçeğiyle aynıdır.", "subject": {"tr": "Almanca", "en": "German", "de": "Deutsch"}, "scale": [{"n": 0, "label": "Henüz gözlenmedi", "tr": "Bu kazanımla ilgili çalışma henüz gözlenmedi.", "en": "Not yet observed for this objective."}, {"n": 1, "label": "Başlangıç", "tr": "Birkaç kelimeyi resimle eşleştirir. Kalıbı dinlediğinde anlar ve söylemeye başlıyor.", "en": "Matches a few words to pictures. Understands the pattern when listening and is starting to say it."}, {"n": 2, "label": "Destekle yapıyor", "tr": "Bazı kelimeleri tanır. Kalıbı öğretmenini ya da arkadaşını tekrar ederek söyler.", "en": "Recognises some of the words. Says the pattern by repeating the teacher or a classmate."}, {"n": 3, "label": "Gelişiyor", "tr": "Kelimelerin çoğunu tanır, bir kısmını söyler. Kalıbı resim, jest ya da örnek desteğiyle kullanır.", "en": "Recognises most of the words and says some of them. Uses the pattern with picture, gesture or model support."}, {"n": 4, "label": "İyi", "tr": "Kelimelerin çoğunu tanır ve söyler. Kalıbı küçük hatalarla, çoğunlukla yardım almadan kullanır.", "en": "Recognises and says most of the words. Uses the pattern mostly without help, with small errors."}, {"n": 5, "label": "Çok iyi", "tr": "Kelimeleri tanır ve kendiliğinden söyler. Kalıbı yardım almadan, doğru biçimde ve kendi bilgileriyle kullanır.", "en": "Recognises and says the words on their own. Uses the pattern accurately and without help, with their own information."}], "units": [{"name": "Einstieg: Hallo", "objectives": [{"area": "İletişim", "label": "Hallo, Ich heiße…, Wie heißt du?, Tschüss", "desc": "Selamlaşır, vedalaşır, adını söyler ve birinin adını sorar.", "example": null, "p": {"tr": "selamlaşma, vedalaşma, adını söyleme ve sorma", "en": "greet, say goodbye, and ask and say names", "de": "begrüßen, sich verabschieden und nach dem Namen fragen"}, "id": "de1o1"}, {"area": "Şarkı", "label": "„Hallo“ / „Tschüss“", "desc": "Giriş ve çıkış şarkılarını söyler.", "example": null, "p": {"tr": "giriş ve çıkış şarkılarını söyleme", "en": "sing the hello and goodbye songs", "de": "das Begrüßungs- und das Abschiedslied singen"}, "id": "de1o2"}]}, {"name": "Lektion 1: Meine Schulsachen", "objectives": [{"area": "Kelime", "label": "die Tasche, der Radiergummi, der Bleistift, das Mäppchen", "desc": "Okul eşyalarını tanır ve adlandırır.", "example": null, "p": {"tr": "okul eşyalarını adlandırma", "en": "name school things", "de": "Schulsachen benennen"}, "id": "de1o3"}, {"area": "Kelime", "label": "rot, gelb, grün, blau, braun, rosa", "desc": "Okul eşyalarını renkleriyle birlikte söyler.", "example": null, "p": {"tr": "okul eşyalarını renkleriyle birlikte söyleme", "en": "say school things together with their colours", "de": "Schulsachen mit ihren Farben benennen"}, "id": "de1o4"}, {"area": "Renk ve sayı", "label": "1–4", "desc": "Dörde kadar sayar.", "example": null, "p": {"tr": "dörde kadar sayma", "en": "count to four", "de": "bis vier zählen"}, "id": "de1o5"}, {"area": "Şarkı", "label": "„Kunterbunt“", "desc": "“Kunterbunt” şarkısını söyler.", "example": null, "p": {"tr": "“Kunterbunt” şarkısını söyleme", "en": "sing the song “Kunterbunt”", "de": "das Lied „Kunterbunt“ singen"}, "id": "de1o6"}]}, {"name": "Lektion 2: Einfach lecker!", "objectives": [{"area": "Kelime", "label": "die Gurke, die Tomate, die Karotte, die Orange, die Birne, der Apfel", "desc": "Meyve ve sebzeleri tanır ve adlandırır.", "example": null, "p": {"tr": "meyve ve sebzeleri adlandırma", "en": "name fruit and vegetables", "de": "Obst und Gemüse benennen"}, "id": "de1o7"}, {"area": "Dil yapısı", "label": "Was magst du?", "desc": "Hangi meyve ya da sebzeyi sevdiğini söyler.", "example": null, "p": {"tr": "sevdiği meyve ve sebzeleri söyleme", "en": "say which fruit and vegetables they like", "de": "sagen, welches Obst und Gemüse es mag"}, "id": "de1o8"}, {"area": "Renk ve sayı", "label": "1–8", "desc": "Sekize kadar sayar.", "example": null, "p": {"tr": "sekize kadar sayma", "en": "count to eight", "de": "bis acht zählen"}, "id": "de1o9"}, {"area": "Şarkı", "label": "„Was magst du?“", "desc": "“Was magst du?” şarkısını söyler.", "example": null, "p": {"tr": "“Was magst du?” şarkısını söyleme", "en": "sing the song “Was magst du?”", "de": "das Lied „Was magst du?“ singen"}, "id": "de1o10"}]}, {"name": "Lektion 3: Im Zoo", "objectives": [{"area": "Kelime", "label": "der Löwe, die Giraffe, der Affe, der Elefant", "desc": "Hayvanat bahçesi hayvanlarını adlandırır.", "example": null, "p": {"tr": "hayvanat bahçesi hayvanlarını adlandırma", "en": "name zoo animals", "de": "Zootiere benennen"}, "id": "de1o11"}, {"area": "Dinleme", "label": "Tiere und ihr Futter", "desc": "Hayvanları yiyecekleriyle eşleştirir.", "example": null, "p": {"tr": "hayvanları yiyecekleriyle eşleştirme", "en": "match animals to their food", "de": "Tiere ihrem Futter zuordnen"}, "id": "de1o12"}, {"area": "Şarkı", "label": "„Im Zoo“", "desc": "“Im Zoo” şarkısını söyler.", "example": null, "p": {"tr": "“Im Zoo” şarkısını söyleme", "en": "sing the song “Im Zoo”", "de": "das Lied „Im Zoo“ singen"}, "id": "de1o13"}]}, {"name": "Lektion 4: Meine Familie", "objectives": [{"area": "Kelime", "label": "der Vater, die Mutter, der Bruder, die Schwester, der Opa, die Oma", "desc": "Aile bireylerini adlandırır.", "example": null, "p": {"tr": "aile bireylerini adlandırma", "en": "name family members", "de": "Familienmitglieder benennen"}, "id": "de1o14"}, {"area": "Renk ve sayı", "label": "1–10", "desc": "Ona kadar sayar.", "example": null, "p": {"tr": "ona kadar sayma", "en": "count to ten", "de": "bis zehn zählen"}, "id": "de1o15"}, {"area": "Şarkı", "label": "„Meine Familie“", "desc": "“Meine Familie” şarkısını söyler.", "example": null, "p": {"tr": "“Meine Familie” şarkısını söyleme", "en": "sing the song “Meine Familie”", "de": "das Lied „Meine Familie“ singen"}, "id": "de1o16"}]}, {"name": "Lektion 5: Im Park", "objectives": [{"area": "Kelime", "label": "Basketball, Fußball, Verstecken, Volleyball spielen", "desc": "Oyun ve sporları adlandırır.", "example": null, "p": {"tr": "oyun ve sporları adlandırma", "en": "name games and sports", "de": "Spiele und Sportarten benennen"}, "id": "de1o17"}, {"area": "Dil yapısı", "label": "Was machst du gern?", "desc": "Sevdiği oyunu söyler.", "example": null, "p": {"tr": "sevdiği oyunu söyleme", "en": "say which game they like playing", "de": "sagen, was es gern spielt"}, "id": "de1o18"}, {"area": "Şarkı", "label": "„Was spielst du?“", "desc": "“Was spielst du?” şarkısını söyler.", "example": null, "p": {"tr": "“Was spielst du?” şarkısını söyleme", "en": "sing the song “Was spielst du?”", "de": "das Lied „Was spielst du?“ singen"}, "id": "de1o19"}]}, {"name": "Meine Spielsachen", "objectives": [{"area": "Kelime", "label": "der Ball, die Puppe, der Teddy, das Auto", "desc": "Oyuncakları tanır ve adlandırır.", "example": null, "p": {"tr": "oyuncakları adlandırma", "en": "name toys", "de": "Spielsachen benennen"}, "id": "de1o20"}, {"area": "Dil yapısı", "label": "Mein Lieblingsspielzeug", "desc": "En sevdiği oyuncağı söyler.", "example": null, "p": {"tr": "en sevdiği oyuncağı söyleme", "en": "say what their favourite toy is", "de": "sein Lieblingsspielzeug nennen"}, "id": "de1o21"}, {"area": "Şarkı", "label": "„Komm spiel doch mal!“", "desc": "“Komm spiel doch mal!” şarkısını söyler.", "example": null, "p": {"tr": "“Komm spiel doch mal!” şarkısını söyleme", "en": "sing the song “Komm spiel doch mal!”", "de": "das Lied „Komm spiel doch mal!“ singen"}, "id": "de1o22"}]}], "grade": "1"}, {"id": "de2", "builtIn": true, "draft": true, "group": "Almanca", "title": "2. Sınıf Almanca", "subtitle": "OTTO Neu 1", "note": "Yıllık plandan oluşturulan taslak rubrik. Puan ölçeği 2. sınıf İngilizce ölçeğiyle aynıdır.", "subject": {"tr": "Almanca", "en": "German", "de": "Deutsch"}, "scale": [{"n": 0, "label": "Henüz gözlenmedi", "tr": "Bu kazanımla ilgili çalışma henüz gözlenmedi.", "en": "Not yet observed for this objective."}, {"n": 1, "label": "Başlangıç", "tr": "Kelimeleri dinlediğinde tanır ve söylemeye başlıyor. Kalıbı dinlediğinde anlar.", "en": "Recognises the words when listening and is starting to say them. Understands the pattern when listening."}, {"n": 2, "label": "Destekle yapıyor", "tr": "Bazı kelimeleri söyler. Kalıbı tek kelimeyle ya da tekrar ederek kullanır.", "en": "Says some of the words. Uses the pattern with single words or by repeating."}, {"n": 3, "label": "Gelişiyor", "tr": "Kelimelerin çoğunu bilir. Kalıbı örnek cümle ya da resim desteğiyle kullanır, soruları cevaplar ama soru sormakta desteğe ihtiyaç duyar.", "en": "Knows most of the words. Uses the pattern with a model sentence or picture support; answers questions but needs support to ask them."}, {"n": 4, "label": "İyi", "tr": "Kelimelerin çoğunu doğru söyler. Kalıbı küçük hatalarla, çoğunlukla yardım almadan kullanır.", "en": "Says most of the words correctly. Uses the pattern mostly without help, with small errors."}, {"n": 5, "label": "Çok iyi", "tr": "Kelimeleri doğru söyler ve yazılı hallerini tanır. Kalıpla soru sorar ve kısa cümlelerle yardım almadan cevap verir.", "en": "Says the words correctly and recognises them in writing. Asks questions with the pattern and answers in short sentences without help."}], "units": [{"name": "Lektion 1: Hallo", "objectives": [{"area": "İletişim", "label": "Wie heißt du? / Wer bist du?", "desc": "Selamlaşır, kendini tanıtır ve birinin adını sorar.", "example": null, "p": {"tr": "selamlaşma, kendini tanıtma ve ad sorma", "en": "greet people, introduce themselves and ask names", "de": "sich begrüßen, sich vorstellen und nach dem Namen fragen"}, "id": "de2o1"}, {"area": "Kelime", "label": "Tageszeiten, verabschieden", "desc": "Günün bölümlerini söyler ve vedalaşır.", "example": null, "p": {"tr": "günün bölümlerini söyleme ve vedalaşma", "en": "name the times of day and say goodbye", "de": "die Tageszeiten nennen und sich verabschieden"}, "id": "de2o2"}, {"area": "Şarkı", "label": "Lied der Lektion", "desc": "Ünite şarkısını söyler.", "example": null, "p": {"tr": "ünite şarkısını söyleme", "en": "sing the unit song", "de": "das Lied der Lektion singen"}, "id": "de2o3"}]}, {"name": "Lektion 2: Meine Schulsachen", "objectives": [{"area": "Kelime", "label": "Die Schulsachen", "desc": "Okul eşyalarını adlandırır.", "example": null, "p": {"tr": "okul eşyalarını adlandırma", "en": "name school things", "de": "Schulsachen benennen"}, "id": "de2o4"}, {"area": "Dil yapısı", "label": "Was ist das? (der/die/das, ein/eine)", "desc": "Was ist das? sorusunu artikellerle cevaplar.", "example": null, "p": {"tr": "Was ist das? sorusunu artikellerle cevaplama", "en": "answer “Was ist das?” using articles", "de": "die Frage „Was ist das?“ mit Artikeln beantworten"}, "id": "de2o5"}, {"area": "Kelime", "label": "Zahlen, Farben", "desc": "Sayıları ve renkleri kullanır.", "example": null, "p": {"tr": "sayıları ve renkleri kullanma", "en": "use numbers and colours", "de": "Zahlen und Farben verwenden"}, "id": "de2o6"}]}, {"name": "Lektion 3: Der Herbst", "objectives": [{"area": "Kelime", "label": "Die Jahreszeiten", "desc": "Mevsimleri adlandırır.", "example": null, "p": {"tr": "mevsimleri adlandırma", "en": "name the seasons", "de": "die Jahreszeiten benennen"}, "id": "de2o7"}, {"area": "Okuma-Dinleme", "label": "Was passiert im Herbst?", "desc": "Sonbaharla ilgili kısa metin ve cümleleri anlar.", "example": null, "p": {"tr": "sonbaharla ilgili kısa metinleri anlama", "en": "understand short texts about autumn", "de": "kurze Texte über den Herbst verstehen"}, "id": "de2o8"}, {"area": "Dil yapısı", "label": "Was kannst du im Herbst machen? (können)", "desc": "Sonbaharda neler yapabildiğini söyler.", "example": null, "p": {"tr": "sonbaharda neler yapabildiğini söyleme", "en": "say what they can do in autumn", "de": "sagen, was man im Herbst machen kann"}, "id": "de2o9"}]}, {"name": "Lektion 4: Meine Familie", "objectives": [{"area": "Kelime", "label": "Familienmitglieder", "desc": "Aile bireylerini adlandırır.", "example": null, "p": {"tr": "aile bireylerini adlandırma", "en": "name family members", "de": "Familienmitglieder benennen"}, "id": "de2o10"}, {"area": "Dil yapısı", "label": "Wer ist das? mein / meine", "desc": "mein / meine ile aile bireylerini tanıtır.", "example": null, "p": {"tr": "mein / meine ile aile bireylerini tanıtma", "en": "introduce family members with mein and meine", "de": "Familienmitglieder mit mein und meine vorstellen"}, "id": "de2o11"}, {"area": "Konuşma", "label": "Meine Familie vorstellen", "desc": "Kendi ailesini tanıtır.", "example": null, "p": {"tr": "kendi ailesini tanıtma", "en": "introduce their own family", "de": "die eigene Familie vorstellen"}, "id": "de2o12"}]}, {"name": "Lektion 5: Mein Körper", "objectives": [{"area": "Kelime", "label": "Körperteile", "desc": "Vücut bölümlerini gösterir ve adlandırır.", "example": null, "p": {"tr": "vücut bölümlerini gösterip adlandırma", "en": "point to and name body parts", "de": "Körperteile zeigen und benennen"}, "id": "de2o13"}, {"area": "Dil yapısı", "label": "mein / meine", "desc": "mein / meine ile vücut bölümlerini söyler.", "example": null, "p": {"tr": "mein / meine ile vücut bölümlerini söyleme", "en": "talk about body parts using mein and meine", "de": "Körperteile mit mein und meine benennen"}, "id": "de2o14"}, {"area": "Renk ve sayı", "label": "Zahlen", "desc": "Sayıları kullanır.", "example": null, "p": {"tr": "sayıları kullanma", "en": "use numbers", "de": "Zahlen verwenden"}, "id": "de2o15"}]}, {"name": "Lektion 6: Das Picknick", "objectives": [{"area": "Kelime", "label": "Lebensmittel", "desc": "Yiyecekleri adlandırır.", "example": null, "p": {"tr": "yiyecekleri adlandırma", "en": "name food", "de": "Lebensmittel benennen"}, "id": "de2o16"}, {"area": "Dil yapısı", "label": "Was magst du? (mögen)", "desc": "Neyi sevip sevmediğini söyler.", "example": null, "p": {"tr": "neyi sevip sevmediğini söyleme", "en": "say what they like and don't like", "de": "sagen, was es mag und nicht mag"}, "id": "de2o17"}, {"area": "Dinleme", "label": "Wer mag was?", "desc": "Kimin neyi sevdiğini dinleyerek anlar.", "example": null, "p": {"tr": "kimin neyi sevdiğini dinleyerek anlama", "en": "understand who likes what when listening", "de": "beim Hören verstehen, wer was mag"}, "id": "de2o18"}]}, {"name": "Lektion 7: Auf dem Bauernhof", "objectives": [{"area": "Kelime", "label": "Die Tiere", "desc": "Çiftlik hayvanlarını adlandırır.", "example": null, "p": {"tr": "çiftlik hayvanlarını adlandırma", "en": "name farm animals", "de": "Bauernhoftiere benennen"}, "id": "de2o19"}, {"area": "Dil yapısı", "label": "Was können die Tiere? (können)", "desc": "Hayvanların neler yapabildiğini söyler.", "example": null, "p": {"tr": "hayvanların neler yapabildiğini söyleme", "en": "say what animals can do", "de": "sagen, was die Tiere können"}, "id": "de2o20"}, {"area": "Renk ve sayı", "label": "zählen und rechnen", "desc": "Sayar ve basit hesaplamalar yapar.", "example": null, "p": {"tr": "sayma ve basit hesaplama", "en": "count and do simple sums", "de": "zählen und einfach rechnen"}, "id": "de2o21"}]}, {"name": "Lektion 8: Meine Klamotten", "objectives": [{"area": "Kelime", "label": "Kleidungsstücke", "desc": "Giysileri adlandırır.", "example": null, "p": {"tr": "giysileri adlandırma", "en": "name clothes", "de": "Kleidungsstücke benennen"}, "id": "de2o22"}, {"area": "Kelime", "label": "Farben", "desc": "Giysileri renkleriyle birlikte söyler.", "example": null, "p": {"tr": "giysileri renkleriyle birlikte söyleme", "en": "describe clothes with their colours", "de": "Kleidungsstücke mit Farben beschreiben"}, "id": "de2o23"}, {"area": "Dil yapısı", "label": "Jahreszeiten und Kleidung", "desc": "Mevsimlere uygun giysileri söyler.", "example": null, "p": {"tr": "mevsimlere uygun giysileri söyleme", "en": "match clothes to the seasons", "de": "Kleidung den Jahreszeiten zuordnen"}, "id": "de2o24"}]}], "grade": "2"}, {"id": "de3", "builtIn": true, "draft": true, "group": "Almanca", "title": "3. Sınıf Almanca", "subtitle": "OTTO Neu 2", "note": "Yıllık plandan oluşturulan taslak rubrik. Puan ölçeği 3. sınıf İngilizce ölçeğiyle aynıdır.", "subject": {"tr": "Almanca", "en": "German", "de": "Deutsch"}, "scale": [{"n": 0, "label": "Henüz gözlenmedi", "tr": "Bu kazanımla ilgili çalışma henüz gözlenmedi.", "en": "Not yet observed for this objective."}, {"n": 1, "label": "Başlangıç", "tr": "Kelimeleri ve yapıyı okurken ya da dinlerken tanır, kullanmaya başlıyor.", "en": "Recognises the words and structure when reading or listening and is starting to use them."}, {"n": 2, "label": "Destekle yapıyor", "tr": "Bazı kelimeleri kullanır. Yapıyı tanır, cümle kurarken örneği tekrar eder ya da sık hata yapar.", "en": "Uses some of the words. Recognises the structure; repeats the model or makes frequent errors when making sentences."}, {"n": 3, "label": "Gelişiyor", "tr": "Kelimeleri bilir, yazımda zaman zaman zorlanır. Yapıyı örnek üzerinden kullanır, kendi cümlesini kurarken desteğe ihtiyaç duyar.", "en": "Knows the words but sometimes finds spelling difficult. Uses the structure from a model and needs support to make their own sentences."}, {"n": 4, "label": "İyi", "tr": "Kelimeleri çoğunlukla doğru kullanır. Yapıyla cümle kurar, ara sıra küçük hatalar yapar.", "en": "Uses the words mostly correctly. Makes sentences with the structure, with occasional small errors."}, {"n": 5, "label": "Çok iyi", "tr": "Kelimeleri konuşurken ve yazarken doğru kullanır. Yapıyla kendi cümlelerini kurar, soru sorar ve cevaplar; küçük hatalar anlamı etkilemez.", "en": "Uses the words correctly in speaking and writing. Makes their own sentences with the structure, asks and answers questions; small errors do not affect meaning."}], "units": [{"name": "Lektion 0: Hallo (Wiederholung)", "objectives": [{"area": "İletişim", "label": "sich vorstellen, nach dem Namen fragen", "desc": "Kendini tanıtır ve birinin adını sorar.", "example": null, "p": {"tr": "kendini tanıtma ve ad sorma", "en": "introduce themselves and ask names", "de": "sich vorstellen und nach dem Namen fragen"}, "id": "de3o1"}, {"area": "Kelime", "label": "Zahlen bis 12, Farben", "desc": "12'ye kadar sayıları ve renkleri kullanır.", "example": null, "p": {"tr": "12'ye kadar sayılar ve renkler", "en": "use numbers up to 12 and colours", "de": "die Zahlen bis 12 und Farben verwenden"}, "id": "de3o2"}, {"area": "Kelime", "label": "Körperteile, Schulsachen, Familie", "desc": "Önceki yılın kelimelerini hatırlar ve kullanır.", "example": null, "p": {"tr": "geçen yılın kelimelerini hatırlama", "en": "remember and use last year's words", "de": "den Wortschatz vom letzten Jahr wiederholen und verwenden"}, "id": "de3o3"}]}, {"name": "Lektion 1: Mein Geburtstag", "objectives": [{"area": "Dil yapısı", "label": "Wie alt bist du?", "desc": "Yaşını sorar ve söyler.", "example": null, "p": {"tr": "yaşını sorup söyleme", "en": "ask and say their age", "de": "nach dem Alter fragen und das eigene Alter sagen"}, "id": "de3o4"}, {"area": "Kelime", "label": "Zahlen bis 20", "desc": "20'ye kadar sayıları söyler ve yazar.", "example": null, "p": {"tr": "20'ye kadar sayıları söyleme ve yazma", "en": "say and write numbers up to 20", "de": "die Zahlen bis 20 sagen und schreiben"}, "id": "de3o5"}, {"area": "Dil yapısı", "label": "er / sie / es", "desc": "Şahıs zamirlerini (er/sie/es) soru ve cevaplarda doğru kullanır.", "example": null, "p": {"tr": "er, sie, es zamirlerini doğru kullanma", "en": "use the pronouns er, sie and es correctly", "de": "die Personalpronomen er, sie und es richtig verwenden"}, "id": "de3o6"}]}, {"name": "Lektion 2: Mein Klassenzimmer", "objectives": [{"area": "Kelime", "label": "Gegenstände im Klassenzimmer", "desc": "Sınıftaki eşyaları adlandırır.", "example": null, "p": {"tr": "sınıftaki eşyaları adlandırma", "en": "name things in the classroom", "de": "Gegenstände im Klassenzimmer benennen"}, "id": "de3o7"}, {"area": "Dil yapısı", "label": "bestimmter / unbestimmter Artikel", "desc": "Belirli ve belirsiz artikelleri doğru kullanır.", "example": null, "p": {"tr": "belirli ve belirsiz artikelleri kullanma", "en": "use definite and indefinite articles", "de": "bestimmte und unbestimmte Artikel verwenden"}, "id": "de3o8"}, {"area": "Dil yapısı", "label": "kein / keine", "desc": "kein / keine ile olumsuz cümle kurar.", "example": null, "p": {"tr": "kein / keine ile olumsuz cümle kurma", "en": "make negative sentences with kein and keine", "de": "Sätze mit kein und keine bilden"}, "id": "de3o9"}]}, {"name": "Lektion 3: Mein Stundenplan", "objectives": [{"area": "Kelime", "label": "Wochentage, Unterrichtsfächer", "desc": "Haftanın günlerini ve okul derslerini adlandırır.", "example": null, "p": {"tr": "günleri ve okul derslerini adlandırma", "en": "name days and school subjects", "de": "Wochentage und Schulfächer benennen"}, "id": "de3o10"}, {"area": "Dil yapısı", "label": "Verben konjugieren", "desc": "Fiilleri doğru çekimler.", "example": null, "p": {"tr": "fiilleri doğru çekimleme", "en": "conjugate verbs correctly", "de": "Verben richtig konjugieren"}, "id": "de3o11"}, {"area": "Dil yapısı", "label": "gern / nicht gern", "desc": "Sevdiği ve sevmediği şeyleri gern / nicht gern ile söyler.", "example": null, "p": {"tr": "neyi sevip sevmediğini gern / nicht gern ile söyleme", "en": "say what they like and don't like doing with gern and nicht gern", "de": "mit gern und nicht gern sagen, was es mag"}, "id": "de3o12"}]}, {"name": "Lektion 4: Mein Haus", "objectives": [{"area": "Kelime", "label": "Zimmer, Möbel", "desc": "Odaları ve mobilyaları adlandırır.", "example": null, "p": {"tr": "odaları ve mobilyaları adlandırma", "en": "name rooms and furniture", "de": "Zimmer und Möbel benennen"}, "id": "de3o13"}, {"area": "Dil yapısı", "label": "Adjektive", "desc": "Eşyaları sıfatlarla tanımlar.", "example": null, "p": {"tr": "eşyaları sıfatlarla tanımlama", "en": "describe things with adjectives", "de": "Dinge mit Adjektiven beschreiben"}, "id": "de3o14"}, {"area": "Dil yapısı", "label": "Pluralformen", "desc": "Eşyaların çoğul hallerini kullanır.", "example": null, "p": {"tr": "eşyaların çoğul hallerini kullanma", "en": "use plural forms of furniture words", "de": "die Pluralformen von Möbeln verwenden"}, "id": "de3o15"}, {"area": "Konuşma", "label": "Mein Zimmer", "desc": "Kendi odasını anlatır.", "example": null, "p": {"tr": "kendi odasını anlatma", "en": "describe their own room", "de": "das eigene Zimmer beschreiben"}, "id": "de3o16"}]}, {"name": "Lektion 5: Das Frühstück", "objectives": [{"area": "Kelime", "label": "Lebensmittel", "desc": "Kahvaltılık yiyecekleri adlandırır.", "example": null, "p": {"tr": "kahvaltılık yiyecekleri adlandırma", "en": "name breakfast food", "de": "Lebensmittel zum Frühstück benennen"}, "id": "de3o17"}, {"area": "Dil yapısı", "label": "essen, trinken, gern", "desc": "Ne yiyip içmeyi sevdiğini söyler.", "example": null, "p": {"tr": "ne yiyip içmeyi sevdiğini söyleme", "en": "say what they like eating and drinking", "de": "sagen, was es gern isst und trinkt"}, "id": "de3o18"}, {"area": "Dil yapısı", "label": "Was kostet das?", "desc": "Fiyat sorar ve Euro ile söyler.", "example": null, "p": {"tr": "fiyat sorup söyleme", "en": "ask and say prices in euros", "de": "nach Preisen fragen und sie in Euro sagen"}, "id": "de3o19"}]}, {"name": "Lektion 6: Meine Freizeit", "objectives": [{"area": "Kelime", "label": "Freizeitaktivitäten", "desc": "Boş zaman etkinliklerini adlandırır.", "example": null, "p": {"tr": "boş zaman etkinliklerini adlandırma", "en": "name free-time activities", "de": "Freizeitaktivitäten benennen"}, "id": "de3o20"}, {"area": "Dil yapısı", "label": "können / nicht können", "desc": "Yapabildiği ve yapamadığı şeyleri söyler.", "example": null, "p": {"tr": "neyi yapabildiğini ve yapamadığını söyleme", "en": "say what they can and can't do", "de": "sagen, was man kann und nicht kann"}, "id": "de3o21"}, {"area": "Dil yapısı", "label": "Verbkonjugation", "desc": "Kimin ne yaptığını doğru fiil çekimleriyle anlatır.", "example": null, "p": {"tr": "kimin ne yaptığını fiil çekimleriyle anlatma", "en": "say who does what with correct verb forms", "de": "mit richtigen Verbformen sagen, wer was macht"}, "id": "de3o22"}]}, {"name": "Lektion 7: Im Zoo", "objectives": [{"area": "Kelime", "label": "Tiere, Pluralformen", "desc": "Hayvanları ve çoğul hallerini söyler.", "example": null, "p": {"tr": "hayvanları ve çoğul hallerini söyleme", "en": "name animals and their plural forms", "de": "Tiere und ihre Pluralformen nennen"}, "id": "de3o23"}, {"area": "Okuma-Dinleme", "label": "Hörtext, Text über den Zoo", "desc": "Hayvanat bahçesiyle ilgili dinleme ve okuma metinlerini anlar.", "example": null, "p": {"tr": "hayvanat bahçesiyle ilgili metinleri anlama", "en": "understand texts about the zoo", "de": "Hör- und Lesetexte über den Zoo verstehen"}, "id": "de3o24"}, {"area": "Dil yapısı", "label": "Was können die Tiere?", "desc": "Hayvanların neler yapabildiğini söyler.", "example": null, "p": {"tr": "hayvanların neler yapabildiğini söyleme", "en": "say what animals can do", "de": "sagen, was die Tiere können"}, "id": "de3o25"}]}, {"name": "Lektion 8: Der Frühling", "objectives": [{"area": "Kelime", "label": "Frühling", "desc": "Baharla ilgili kelimeleri kullanır.", "example": null, "p": {"tr": "baharla ilgili kelimeleri kullanma", "en": "use words about spring", "de": "Wörter zum Frühling verwenden"}, "id": "de3o26"}, {"area": "Okuma", "label": "Texte und Bilder", "desc": "Kısa metinleri uygun resimlerle eşleştirir.", "example": null, "p": {"tr": "kısa metinleri resimlerle eşleştirme", "en": "match short texts to pictures", "de": "kurze Texte den passenden Bildern zuordnen"}, "id": "de3o27"}, {"area": "Yazma", "label": "Fragen beantworten", "desc": "Sorulara yazılı olarak cevap verir.", "example": null, "p": {"tr": "sorulara yazılı cevap verme", "en": "answer questions in writing", "de": "Fragen schriftlich beantworten"}, "id": "de3o28"}]}], "grade": "3"}];
+const T = {
+  tr: {
+    open: {
+      1: ["Çocuğunuz {S} öğrenme yolculuğunun başında.", "Çocuğunuz {S} dersinde ilk adımlarını atıyor.", "Çocuğunuz {S} ile tanışma sürecinde ve her derste yeni şeyler keşfediyor."],
+      2: ["Çocuğunuz {S} dersinde destekle güzel adımlar atıyor.", "Çocuğunuz {S} dersinde kendi hızında ilerliyor.", "Çocuğunuzun {S} becerileri filizleniyor."],
+      3: ["Çocuğunuz {S} dersinde güzel bir gelişim gösteriyor.", "Çocuğunuzun {S} becerileri her geçen hafta gelişiyor.", "Çocuğunuz {S} dersinde emin adımlarla ilerliyor."],
+      4: ["Çocuğunuz {S} dersinde iyi bir düzeyde ilerliyor.", "Çocuğunuz {S} dersinde istikrarlı ve güzel bir ilerleme gösteriyor.", "Çocuğunuz {S} dersinde öğrendiklerini büyük ölçüde başarıyla kullanıyor."],
+      5: ["Çocuğunuz {S} dersinde çok başarılı bir performans sergiliyor.", "Çocuğunuz {S} dersinde öğrendiklerini kendinden emin bir şekilde kullanıyor.", "Çocuğunuz {S} dersinde parlıyor."]
+    },
+    strength: {
+      1: ["{P} konusuyla tanışmaya başladı.", "{P} konusunda ilk adımlarını atıyor.", "{P} konusunu dinlediğinde tanımaya başladı."],
+      2: ["{P} konusunda destekle güzel adımlar atıyor.", "{P} konusunda öğretmen desteğiyle ilerliyor.", "{P} konusunda gelişmeye başladı."],
+      3: ["{P} konusunda güzel bir gelişim gösteriyor.", "{P} konusunda örnek ve görsel desteğiyle başarılı oluyor.", "{P} konusunda emin adımlarla ilerliyor."],
+      4: ["{P} konusunda iyi bir düzeye ulaştı.", "Özellikle {p} konusunda başarılı.", "{P} konusunda küçük hatalarla rahatça ilerliyor."],
+      5: ["Özellikle {p} konusunda çok başarılı.", "{P} konusunda kendinden emin ve başarılı.", "{P} konusunda yardım almadan çok iyi bir performans gösteriyor."]
+    },
+    next: {
+      low: ["Şimdi {p} konusu üzerinde birlikte çalışıyoruz.", "{P} konusunda daha fazla pratik yapmasını destekliyoruz.", "Oyunlar ve tekrarlarla {p} konusunu pekiştiriyoruz."],
+      mid: ["{P} konusunda daha bağımsız olması için çalışıyoruz.", "{P} konusunda daha az desteğe ihtiyaç duyması için pratik yapıyoruz.", "Bir sonraki hedefimiz, {p} konusunda kendine daha çok güvenmesi."],
+      high: ["{P} konusunda tamamen kendi başına ilerlemesini hedefliyoruz.", "{P} konusunda küçük hataları azaltmak için çalışıyoruz.", "{P} konusunda tam bir ustalık kazanmasını destekliyoruz."],
+      top: ["Bu başarısını yeni konularda da sürdürmesini teşvik ediyoruz.", "{P} konusundaki becerisini yeni durumlarda kullanmasını destekliyoruz.", "Kendini daha zorlayıcı etkinliklerle geliştirmesini destekliyoruz."]
+    }
+  },
+  en: {
+    open: {
+      1: ["Your child is at the start of their {S} learning journey.", "Your child is taking their first steps in {S}.", "Your child is getting to know {S} and discovering something new in every lesson."],
+      2: ["Your child is taking good steps in {S} with support.", "Your child is progressing in {S} at their own pace.", "Your child's {S} skills are starting to grow."],
+      3: ["Your child is making good progress in {S}.", "Your child's {S} skills are growing every week.", "Your child is moving forward steadily in {S}."],
+      4: ["Your child is making very good progress in {S}.", "Your child is progressing steadily and well in {S}.", "Your child uses most of what they have learnt in {S} successfully."],
+      5: ["Your child is doing excellently in {S}.", "Your child uses what they have learnt in {S} with real confidence.", "Your child is shining in {S} lessons."]
+    },
+    strength: {
+      1: ["They are beginning to {p}.", "They are just getting started with learning to {p}.", "They understand the basics and are starting to {p}."],
+      2: ["With support, they are starting to {p}.", "They can {p} with help from the teacher.", "They are taking their first steps to {p}."],
+      3: ["They are making good progress and can {p} with some support.", "With a picture or model, they can {p}.", "They are steadily learning to {p}."],
+      4: ["They can {p} well, with only small errors.", "They {p} mostly without help.", "They are doing well when they {p}."],
+      5: ["They can {p} confidently and without help.", "They {p} with great confidence.", "They are excellent when they {p}."]
+    },
+    next: {
+      low: ["Next, we are practising together how to {p}.", "We are using games and repetition to help them {p}.", "We are giving them extra practice to {p}."],
+      mid: ["Next, we want them to {p} more independently.", "We are practising so they can {p} with less support.", "Our next goal is for them to {p} with more confidence."],
+      high: ["Our next goal is for them to {p} completely on their own.", "We are working on reducing small errors when they {p}.", "We are helping them {p} with full accuracy."],
+      top: ["We are encouraging them to use this skill in new situations too.", "We will keep challenging them to {p} in longer conversations.", "We are helping them build on this success in new topics."]
+    }
+  },
+  de: {
+    open: {
+      1: ["Ihr Kind steht am Anfang seiner {S}-Lernreise.", "Ihr Kind macht im {S}unterricht seine ersten Schritte.", "Ihr Kind lernt {S} gerade kennen und entdeckt in jeder Stunde etwas Neues."],
+      2: ["Ihr Kind macht im {S}unterricht mit Unterstützung schöne Fortschritte.", "Ihr Kind lernt im {S}unterricht in seinem eigenen Tempo.", "Die {S}kenntnisse Ihres Kindes beginnen zu wachsen."],
+      3: ["Ihr Kind macht im {S}unterricht gute Fortschritte.", "Die {S}kenntnisse Ihres Kindes wachsen von Woche zu Woche.", "Ihr Kind kommt im {S}unterricht Schritt für Schritt voran."],
+      4: ["Ihr Kind macht im {S}unterricht sehr gute Fortschritte.", "Ihr Kind entwickelt sich im {S}unterricht stetig und gut.", "Ihr Kind setzt das meiste Gelernte im {S}unterricht erfolgreich um."],
+      5: ["Ihr Kind zeigt im {S}unterricht hervorragende Leistungen.", "Ihr Kind wendet das Gelernte im {S}unterricht sehr sicher an.", "Ihr Kind glänzt im {S}unterricht."]
+    },
+    strength: {
+      1: ["Es macht erste Schritte bei diesem Lernziel: {p}.", "Beim Zuhören erkennt es schon erste Inhalte zu diesem Lernziel: {p}.", "Es lernt gerade die Grundlagen für dieses Lernziel: {p}."],
+      2: ["Mit Hilfe der Lehrkraft kann es schon {p}.", "Durch Nachsprechen kann es bereits {p}.", "Mit Unterstützung kann es schon {p}."],
+      3: ["Mit Bild- oder Beispielhilfe kann es {p}.", "Es macht gute Fortschritte und kann mit etwas Unterstützung {p}.", "Mit wenig Hilfe kann es schon {p}."],
+      4: ["Es kann schon gut {p}, nur mit kleinen Fehlern.", "Es kann meist ohne Hilfe {p}.", "Es kann überwiegend selbstständig {p}."],
+      5: ["Es kann bereits sehr sicher und ohne Hilfe {p}.", "Ohne Hilfe kann es schon sehr gut {p}.", "Sehr selbstbewusst kann es bereits {p}."]
+    },
+    next: {
+      low: ["Unser nächstes Lernziel: {p}.", "Als Nächstes üben wir gemeinsam weiter: {p}.", "Mit Spielen und Wiederholungen festigen wir: {p}."],
+      mid: ["Mit weniger Unterstützung üben wir jetzt: {p}.", "Als Nächstes festigen wir, damit es sicherer wird: {p}.", "Unser nächstes Ziel ist mehr Selbstständigkeit bei diesem Lernziel: {p}."],
+      high: ["Für volle Sicherheit üben wir weiter: {p}.", "Wir arbeiten an den letzten kleinen Fehlern bei diesem Lernziel: {p}.", "Bald soll es ganz ohne Hilfe gelingen: {p}."],
+      top: ["Wir ermutigen es, dieses Können auch in neuen Situationen zu zeigen.", "Wir fördern es weiter mit anspruchsvolleren Aufgaben.", "Wir unterstützen es dabei, das Gelernte auf neue Themen zu übertragen."]
+    }
+  }
+};
+const LANG_NAMES = { tr: "Türkçe", en: "English", de: "Deutsch" };
+
+/* ---------- Config ---------- */
+const SUPABASE_URL = "https://ueoiryznqkslgkptqwlw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_CRuvlUciesWAfIDUqtiKTg_AuKUeY_C";
+
+/* ---------- State ---------- */
+const PREFS_KEY = "yd-prefs-v1";
+let state = { rubrics: [], activeId: null, unit: {}, lang: "tr", roster: [], cls: {}, scores: {}, notes: {} };
+let sample = null, canImages = false, draft = null, imageBlob = null, parseCtl = null;
+let sb = null, me = null, loaded = {};
+const URL_TYPE = new URLSearchParams(location.hash.slice(1)).get("type") || new URLSearchParams(location.search).get("type");
+
+function newId() { return "x" + Math.random().toString(36).slice(2, 10); }
+function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function sortRoster(list) {
+  const g = x => x.grade === "ana" ? "0" : (x.grade || "9");
+  return list.sort((a, b) => g(a).localeCompare(g(b)) || a.cls.localeCompare(b.cls, "tr"));
+}
+function loadPrefs() {
+  try { const p = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); state.activeId = p.activeId || null; state.unit = p.unit || {}; state.lang = p.lang || "tr"; state.cls = p.cls || {}; } catch (e) {}
+}
+function save() { try { localStorage.setItem(PREFS_KEY, JSON.stringify({ activeId: state.activeId, unit: state.unit, lang: state.lang, cls: state.cls })); } catch (e) {} }
+function isAdmin() { return !!(me && me.role === "admin"); }
+function rub() { return state.rubrics.find(r => r.id === state.activeId); }
+const GRADE_NAMES = { ana: "Anaokulu", "1": "1. sınıf", "2": "2. sınıf", "3": "3. sınıf", "4": "4. sınıf", "5": "5. sınıf", "6": "6. sınıf", "7": "7. sınıf", "8": "8. sınıf" };
+function classesFor(r) { const cs = r.grade ? state.roster.filter(c => c.grade === r.grade) : state.roster; return cs.length ? cs : state.roster; }
+function currentClass(r) { const cs = classesFor(r); return cs.find(c => c.cls === state.cls[r.id]) || cs[0] || null; }
+function scoresOf(r, sid) { const a = state.scores[r.id] = state.scores[r.id] || {}; return a[sid] = a[sid] || {}; }
+function studentsFor(r) {
+  const c = currentClass(r); if (!c) return [];
+  return c.students.map(x => ({ id: x.id, no: x.no, name: x.name, note: (state.notes[r.id] || {})[x.id] || "", scores: (state.scores[r.id] || {})[x.id] || {} }));
+}
+
+/* ---------- Database ---------- */
+function dbErr(e, msg) { console.error(e); toast(msg || "Kaydedilemedi. İnternet bağlantını kontrol edip Yenile’ye bas."); }
+async function fetchAll(table, build) {
+  let out = [], from = 0;
+  for (;;) {
+    const { data, error } = await build(sb.from(table)).range(from, from + 999);
+    if (error) throw error;
+    out = out.concat(data); if (data.length < 1000) break; from += 1000;
+  }
+  return out;
+}
+async function loadBase() {
+  const [rubs, classes, students] = await Promise.all([
+    fetchAll("rubrics", q => q.select("id,data").order("id")),
+    fetchAll("classes", q => q.select("cls,grade").order("cls")),
+    fetchAll("students", q => q.select("id,cls,no,name").eq("active", true).order("id"))
+  ]);
+  const order = ["en1", "en2", "en3", "en4", "de0", "de1", "de2", "de3"];
+  state.rubrics = rubs.map(x => ({ ...x.data, id: x.id })).sort((a, b) => ((order.indexOf(a.id) + 1) || 99) - ((order.indexOf(b.id) + 1) || 99));
+  const byCls = {};
+  classes.forEach(c => { byCls[c.cls] = { cls: c.cls, grade: c.grade || "", students: [] }; });
+  students.forEach(s => { (byCls[s.cls] = byCls[s.cls] || { cls: s.cls, grade: "", students: [] }).students.push({ id: s.id, no: s.no, name: s.name }); });
+  Object.values(byCls).forEach(c => c.students.sort((a, b) => a.name.localeCompare(b.name, "tr")));
+  state.roster = sortRoster(Object.values(byCls));
+  if (!rub()) state.activeId = state.rubrics[0]?.id || null;
+  loaded = {};
+}
+async function loadScores(force) {
+  const r = rub(); if (!r) return; const c = currentClass(r); if (!c || !c.students.length) return;
+  const key = `${r.id}|${c.cls}`; if (loaded[key] && !force) return;
+  const ids = c.students.map(s => s.id);
+  const [sc, nt] = await Promise.all([
+    fetchAll("scores", q => q.select("student_id,objective_id,score").eq("rubric_id", r.id).in("student_id", ids)),
+    fetchAll("notes", q => q.select("student_id,note").eq("rubric_id", r.id).in("student_id", ids))
+  ]);
+  const S = state.scores[r.id] = state.scores[r.id] || {}; ids.forEach(id => { S[id] = {}; });
+  sc.forEach(x => { if (S[x.student_id]) S[x.student_id][x.objective_id] = x.score; });
+  const N = state.notes[r.id] = state.notes[r.id] || {}; ids.forEach(id => { delete N[id]; });
+  nt.forEach(x => { N[x.student_id] = x.note; });
+  loaded[key] = true;
+}
+async function refresh(force) {
+  try { await loadScores(force); } catch (e) { dbErr(e, "Puanlar yüklenemedi. Bağlantını kontrol et."); }
+  renderAll();
+}
+async function setScore(r, sid, oid, v) {
+  const sc = scoresOf(r, sid), old = sc[oid];
+  sc[oid] = v;
+  try {
+    const q = v == null
+      ? sb.from("scores").delete().match({ rubric_id: r.id, student_id: sid, objective_id: oid })
+      : sb.from("scores").upsert({ rubric_id: r.id, student_id: sid, objective_id: oid, score: v, updated_by: me.id, updated_at: new Date().toISOString() });
+    const { error } = await q; if (error) throw error;
+  } catch (e) { sc[oid] = old; renderEval(); dbErr(e); }
+}
+const noteTimers = {};
+function queueNote(r, sid, text) {
+  const N = state.notes[r.id] = state.notes[r.id] || {}; N[sid] = text;
+  clearTimeout(noteTimers[sid]);
+  noteTimers[sid] = setTimeout(async () => {
+    const { error } = await sb.from("notes").upsert({ rubric_id: r.id, student_id: sid, note: text, updated_by: me.id, updated_at: new Date().toISOString() });
+    if (error) dbErr(error);
+  }, 700);
+}
+const rubricTimers = {};
+function queueRubricSave(r) {
+  clearTimeout(rubricTimers[r.id]);
+  rubricTimers[r.id] = setTimeout(async () => {
+    const { id, ...data } = r;
+    const { error } = await sb.from("rubrics").update({ data, updated_at: new Date().toISOString() }).eq("id", id);
+    if (error) dbErr(error);
+  }, 800);
+}
+async function seedRubrics() {
+  const rows = BUILTIN.map(r => { const { id, ...data } = r; return { id, data, built_in: true }; });
+  const { error } = await sb.from("rubrics").upsert(rows);
+  if (error) throw error;
+}
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch]));
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 1800); }
+/* In-page confirmation: the viewer blocks the browser's own confirm() dialog */
+function ask(message, yesLabel) {
+  return new Promise(resolve => {
+    const bg = $("#askBg"), yes = $("#askYes"), no = $("#askNo"), prev = document.activeElement;
+    $("#askMsg").textContent = message; yes.textContent = yesLabel || "Devam et"; bg.hidden = false; yes.focus();
+    const done = v => { bg.hidden = true; yes.onclick = no.onclick = bg.onclick = document.onkeydown = null; if (prev && prev.focus) prev.focus(); resolve(v); };
+    yes.onclick = ev => { ev.stopPropagation(); done(true); };
+    no.onclick = ev => { ev.stopPropagation(); done(false); };
+    bg.onclick = ev => { if (ev.target === bg) done(false); };
+    document.onkeydown = ev => { if (ev.key === "Escape") done(false); };
+  });
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) { try { const ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); const ok = document.execCommand("copy"); ta.remove(); return ok; } catch (e2) { return false; } }
+}
+function maxLevel(r) { return Math.max(...r.scale.map(s => s.n)); }
+function band(l, mx) { return mx <= 1 ? 5 : Math.min(5, Math.max(1, Math.round((l - 1) / (mx - 1) * 4) + 1)); }
+function colorFor(l, mx) { return "c" + Math.max(1, Math.min(4, Math.ceil(l / mx * 4))); }
+function levelLabel(r, l) { return (r.scale.find(s => s.n === l) || {}).label || String(l); }
+function capFirst(s, lang) { if (!s) return s; const loc = lang === "tr" ? "tr" : lang; return s.charAt(0).toLocaleUpperCase(loc) + s.slice(1); }
+function fill(tpl, p, lang, subj) { return tpl.replace("{P}", capFirst(p, lang)).replace("{p}", p).replace("{S}", subj); }
+function scopeObjectives(r) {
+  const u = state.unit[r.id];
+  if (u === undefined || u === "all") return r.units.flatMap(x => x.objectives);
+  return (r.units[+u] || r.units[0]).objectives;
+}
+function scopeName(r) { const u = state.unit[r.id]; return (u === undefined || u === "all") ? "Tüm üniteler" : (r.units[+u] || r.units[0]).name; }
+
+/* ---------- Comment engine ---------- */
+function buildAll(r) {
+  const lang = state.lang, L = T[lang], mx = maxLevel(r), subj = r.subject[lang] || r.subject.tr;
+  const objs = scopeObjectives(r);
+  const sentUse = new Map(), comboUse = new Map(), strUse = new Map(), nxtUse = new Map();
+  const inc = (m, k) => m.set(k, (m.get(k) || 0) + 1), get = (m, k) => m.get(k) || 0;
+  return studentsFor(r).map(st => {
+    const scored = objs.filter(o => Number.isInteger(st.scores[o.id]) && st.scores[o.id] >= 1);
+    if (!scored.length) return null;
+    const vals = scored.map(o => st.scores[o.id]);
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const overall = Math.min(mx, Math.max(1, Math.round(avg)));
+    const seed = hash(st.name), mxv = Math.max(...vals);
+    const byUse = (m, salt) => (a, b) => (get(m, a.id) - get(m, b.id)) || ((hash(salt + a.id) ^ seed) - (hash(salt + b.id) ^ seed));
+    const strength = scored.filter(o => st.scores[o.id] === mxv).sort(byUse(strUse, "s"))[0];
+    let nextO = null;
+    if (scored.length > 1) {
+      const others = scored.filter(o => o.id !== strength.id);
+      const lo = Math.min(...others.map(o => st.scores[o.id]));
+      nextO = others.filter(o => st.scores[o.id] === lo).sort(byUse(nxtUse, "n"))[0];
+    }
+    inc(strUse, strength.id); if (nextO) inc(nxtUse, nextO.id);
+    const ob = band(overall, mx), sb = band(st.scores[strength.id], mx);
+    const nTarget = nextO || strength, nb = band(st.scores[nTarget.id], mx);
+    const nKey = nextO ? (nb <= 2 ? "low" : nb === 3 ? "mid" : nb === 4 ? "high" : "top") : (nb >= 5 ? "top" : nb === 4 ? "high" : nb === 3 ? "mid" : "low");
+    const O = L.open[ob], S = L.strength[sb], N = L.next[nKey];
+    const ks = `${strength.id}|${sb}`, kn = `${nTarget.id}|${nKey}`;
+    let best = null;
+    for (let a = 0; a < O.length; a++) for (let b = 0; b < S.length; b++) for (let c = 0; c < N.length; c++) {
+      const key = `o${ob}.${a}|${ks}.${b}|${kn}.${c}`;
+      const sc = [get(comboUse, key), get(sentUse, `o${ob}.${a}`) + get(sentUse, `s${sb}.${b}`) + get(sentUse, `n${nKey}.${c}`), (hash(key) ^ seed) >>> 0];
+      if (!best || sc[0] < best.sc[0] || (sc[0] === best.sc[0] && (sc[1] < best.sc[1] || (sc[1] === best.sc[1] && sc[2] < best.sc[2])))) best = { a, b, c, key, sc };
+    }
+    inc(comboUse, best.key); inc(sentUse, `o${ob}.${best.a}`); inc(sentUse, `s${sb}.${best.b}`); inc(sentUse, `n${nKey}.${best.c}`);
+    const pS = (strength.p && strength.p[lang]) || strength.label, pN = (nTarget.p && nTarget.p[lang]) || nTarget.label;
+    const parts = { open: fill(O[best.a], "", lang, subj), s: fill(S[best.b], pS, lang, subj), n: fill(N[best.c], pN, lang, subj), note: (st.note || "").trim() };
+    return { overall, strength: strength.id, next: nextO ? nextO.id : null, parts, text: [parts.open, parts.s, parts.n, parts.note].filter(Boolean).join(" ") };
+  });
+}
+
+/* ---------- Render: header ---------- */
+function renderHeader() {
+  const groups = {};
+  state.rubrics.forEach(r => { (groups[r.group || "Diğer"] = groups[r.group || "Diğer"] || []).push(r); });
+  $("#rubricSelect").innerHTML = Object.entries(groups).map(([g, rs]) => `<optgroup label="${esc(g)}">${rs.map(r => `<option value="${esc(r.id)}" ${r.id === state.activeId ? "selected" : ""}>${esc(r.title)}</option>`).join("")}</optgroup>`).join("");
+  document.querySelectorAll("#langSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === state.lang ? "true" : "false"));
+}
+
+/* ---------- Render: evaluation ---------- */
+let lastResults = [], lastStudents = [];
+function renderEval() {
+  const r = rub(), mx = maxLevel(r);
+  $("#evalTitle").textContent = r.title;
+  $("#evalSub").textContent = `${r.subtitle || ""}${r.subtitle ? ". " : ""}Her kazanımı ünite sonunda 0–${mx} arasında puanla; “–” henüz gözlenmedi demektir ve yoruma katılmaz.`;
+  $("#draftNote").innerHTML = r.draft ? `<div class="draft">Bu rubrik yıllık plandan oluşturulmuş bir taslaktır. Kazanımları ve puan ölçeğini zümreyle birlikte gözden geçirmeni öneririz.</div>` : "";
+  const u = state.unit[r.id] ?? "all";
+  $("#unitSelect").innerHTML = `<option value="all" ${u === "all" ? "selected" : ""}>Tüm üniteler (dönem yorumu)</option>` + r.units.map((x, i) => `<option value="${i}" ${String(u) === String(i) ? "selected" : ""}>${esc(x.name)}</option>`).join("");
+  const all = u === "all";
+  $("#unitHint").textContent = all ? "Puan vermek için bir ünite seç. Bu görünümde yorum, puanlanmış tüm kazanımlardan oluşur." : `${(r.units[+u] || r.units[0]).objectives.length} kazanım`;
+  const cls = currentClass(r), clsList = classesFor(r);
+  $("#classSelect").innerHTML = clsList.map(c => `<option value="${esc(c.cls)}" ${cls && c.cls === cls.cls ? "selected" : ""}>${esc(c.cls)} (${c.students.length})</option>`).join("");
+  const studs = studentsFor(r); lastStudents = studs;
+  const results = buildAll(r); lastResults = results;
+  const textCount = new Map(); results.forEach(x => { if (x) textCount.set(x.text, (textCount.get(x.text) || 0) + 1); });
+  const objs = scopeObjectives(r);
+  $("#students").innerHTML = studs.length ? studs.map((st, i) => {
+    const res = results[i];
+    const chip = res ? `<span class="chip ${colorFor(res.overall, mx)}">${esc(levelLabel(r, res.overall))}</span>` : `<span class="chip none">Puan bekliyor</span>`;
+    let left;
+    if (all) {
+      const chips = r.units.map(un => {
+        const v = un.objectives.map(o => st.scores[o.id]).filter(x => Number.isInteger(x) && x >= 1);
+        if (!v.length) return "";
+        const a = v.reduce((p, q) => p + q, 0) / v.length;
+        return `<span class="chip ${colorFor(Math.round(a), mx)}" title="${esc(un.name)}: ${v.length} kazanım">${esc(un.name)} · ${a.toFixed(1).replace(".", ",")}</span>`;
+      }).join("");
+      left = chips ? `<div class="usum">${chips}</div>` : `<p class="hint">Henüz puanlanmış kazanım yok. Üstten bir ünite seçerek puan ver.</p>`;
+    } else {
+      left = objs.map(o => {
+        const v = st.scores[o.id];
+        const tag = res ? (o.id === res.strength ? " tag-s" : (o.id === res.next ? " tag-n" : "")) : "";
+        const btns = [`<button type="button" class="zero" data-sid="${esc(st.id)}" data-o="${esc(o.id)}" data-v="0" aria-pressed="${v === 0}" title="${esc(levelLabel(r, 0))}" aria-label="${esc(o.label)}: henüz gözlenmedi">–</button>`]
+          .concat(r.scale.filter(s => s.n >= 1).map(s => `<button type="button" class="${colorFor(s.n, mx)}" data-sid="${esc(st.id)}" data-o="${esc(o.id)}" data-v="${s.n}" aria-pressed="${v === s.n}" title="${esc(s.label)}" aria-label="${esc(o.label)}: ${s.n}, ${esc(s.label)}">${s.n}</button>`)).join("");
+        return `<div class="obj"><div class="otext${tag}"><b title="${esc(o.label)}"><span class="area">${esc(o.area || "")}</span>${esc(o.label)}</b><span title="${esc(o.desc || "")}">${esc(o.desc || "")}</span></div><span class="pick" role="group" aria-label="${esc(o.label)}">${btns}</span></div>`;
+      }).join("");
+    }
+    const dup = res && textCount.get(res.text) > 1 ? `<span class="dup">Bu yorum sınıfta başka bir öğrencide de var.</span>` : "";
+    const comment = res
+      ? `<p class="comment" lang="${state.lang}"><span>${esc(res.parts.open)}</span> <span class="p-s">${esc(res.parts.s)}</span> <span class="p-n">${esc(res.parts.n)}</span>${res.parts.note ? ` <span class="p-note">${esc(res.parts.note)}</span>` : ""}</p>`
+      : `<p class="comment empty">${all ? "Puanlanmış kazanım olduğunda dönem yorumu burada oluşur." : "Bu ünitede en az bir kazanıma puan verdiğinde yorum burada oluşur."}</p>`;
+    return `<article class="student">
+      <div class="s-left"><div class="s-head"><span class="s-name">${st.no != null ? `<span class="hint">${esc(st.no)}</span> ` : ""}${esc(st.name)}</span>${chip}${isAdmin() ? `<button class="iconbtn" data-del="${esc(st.id)}" aria-label="${esc(st.name)} adlı öğrenciyi kaldır">Kaldır</button>` : ""}</div>${left}</div>
+      <div class="s-right">${comment}
+        <div class="s-foot"><input data-note="${esc(st.id)}" value="${esc(st.note)}" placeholder="Kişisel not ekle (isteğe bağlı)" aria-label="${esc(st.name)} için kişisel not" maxlength="200">
+        <button class="btn" data-copy="${esc(st.id)}" ${res ? "" : "disabled"}>Kopyala</button></div>${dup}
+      </div></article>`;
+  }).join("") : (state.roster.length ? `<div class="how-card"><h3>Bu şubede öğrenci yok</h3><p>“Öğrenci ekle” ile tek tek ekleyebilirsin.</p></div>` : `<div class="how-card"><h3>Henüz sınıf listesi yok</h3><p>${isAdmin() ? "“Sınıf listesi yükle” ile e-Okul Excel dosyasını aktar." : "Zümre yöneticisinin sınıf listelerini yüklemesi gerekiyor."}</p></div>`);
+  const done = results.filter(Boolean), unique = new Set(done.map(x => x.text)).size;
+  $("#stats").innerHTML = `<div class="stat"><b>${studs.length}</b><span>öğrenci${cls ? " · " + esc(cls.cls) : ""}</span></div>
+    <div class="stat"><b>${done.length}</b><span>hazır yorum</span></div>
+    <div class="stat ${done.length && unique === done.length ? "good" : ""}"><b>${unique}</b><span>birbirinden farklı yorum</span></div>`;
+}
+
+/* ---------- Render: rubric ---------- */
+function renderRubric() {
+  const r = rub(), mx = maxLevel(r);
+  $("#rubricTitle").textContent = r.title;
+  $("#rubricIntro").textContent = [r.subtitle, r.note].filter(Boolean).join(" · ");
+  $("#scaleTable").innerHTML = `<thead><tr><th>Puan</th><th>Düzey</th><th>Açıklama</th><th>Descriptor</th></tr></thead><tbody>` +
+    r.scale.slice().sort((a, b) => b.n - a.n).map(s => `<tr><th>${s.n >= 1 ? `<span class="chip ${colorFor(s.n, mx)}">${s.n}</span>` : `<span class="chip none">${s.n}</span>`}</th><td>${esc(s.label)}</td><td>${esc(s.tr || "")}</td><td>${esc(s.en || "")}</td></tr>`).join("") + `</tbody>`;
+  $("#objTable").innerHTML = `<thead><tr><th>Ünite</th><th>Alan</th><th>Kazanım</th><th>Öğrenci…</th><th>Tam puan için örnek</th></tr></thead><tbody>` +
+    r.units.map(u => u.objectives.map((o, i) => `<tr>${i === 0 ? `<th rowspan="${u.objectives.length}">${esc(u.name)}</th>` : ""}<td>${esc(o.area || "")}</td><td>${esc(o.label)}</td><td>${esc(o.desc || "")}</td><td>${esc(o.example || "")}</td></tr>`).join("")).join("") + `</tbody>`;
+  $("#rubricActions").innerHTML = (r.builtIn || !isAdmin()) ? "" : `<button class="btn danger" id="deleteRubric">Bu rubriği sil</button>`;
+}
+
+/* ---------- Render: phrases ---------- */
+function previewFor(r, o) {
+  const lang = state.lang, p = (o.p && o.p[lang]) || "";
+  return p ? fill(T[lang].strength[5][0], p, lang, r.subject[lang]) : "";
+}
+function renderPhrases() {
+  const r = rub();
+  $("#phrases").innerHTML = r.units.map((u, ui) => `<details ${ui === 0 ? "open" : ""}><summary>${esc(u.name)} <span>${u.objectives.length} kazanım</span></summary><div class="pool-body">${u.objectives.map(o => `
+    <div class="ph-obj"><div class="ph-head"><span class="area">${esc(o.area || "")}</span>${esc(o.label)}</div>
+      <div class="ph-grid">${["tr", "en", "de"].map(l => `<div><label>${LANG_NAMES[l]}</label><input data-ph="${esc(o.id)}" data-l="${l}" value="${esc(o.p?.[l] || "")}" ${isAdmin() ? "" : "disabled"}></div>`).join("")}</div>
+      <div class="preview" data-prev="${esc(o.id)}">${esc(previewFor(r, o))}</div></div>`).join("")}</div></details>`).join("") +
+    `<details><summary>Cümle kalıpları <span>${LANG_NAMES[state.lang]}</span></summary><div class="pool-body">${
+      [1, 2, 3, 4, 5].map(b => `<div class="pool-level"><h4>Düzey ${b}</h4><div class="pool-cols"><div><label>Açılış</label><ul>${T[state.lang].open[b].map(x => `<li>${esc(x)}</li>`).join("")}</ul></div><div><label>Güçlü yön</label><ul>${T[state.lang].strength[b].map(x => `<li>${esc(x)}</li>`).join("")}</ul></div></div></div>`).join("") +
+      `<div class="pool-level"><h4>Sonraki adım</h4><ul>${Object.values(T[state.lang].next).flat().map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`
+    }</div></details>`;
+}
+
+function renderUser() {
+  $("#userBox").innerHTML = me ? `<span class="userchip">${esc(me.full_name || me.email)}</span>${isAdmin() ? ` <span class="area">yönetici</span>` : ""} <button class="btn small" id="logoutBtn">Çıkış</button>` : "";
+  document.querySelectorAll(".admin-only").forEach(el => { el.hidden = !isAdmin(); });
+}
+function renderSetup() {
+  const noRub = !state.rubrics.length;
+  $("#setupText").textContent = noRub
+    ? (isAdmin() ? "Veritabanı boş. Zümrenin İngilizce ve Almanca rubriklerini tek tıkla yükleyebilirsin. Ardından “Sınıf listesi yükle” ile e-Okul listesini aktar." : "Zümre yöneticisinin rubrikleri ve sınıf listelerini yüklemesi gerekiyor. Yüklendikten sonra Yenile’ye bas.")
+    : "";
+  $("#setupActions").innerHTML = noRub && isAdmin() ? `<button class="btn primary" id="seedBtn">Hazır rubrikleri yükle</button>` : `<button class="btn" id="reloadBtn2">Yenile</button>`;
+}
+function renderAll() {
+  renderUser();
+  if (!rub()) { renderSetup(); document.querySelectorAll(".tab").forEach(t => t.hidden = true); document.querySelectorAll(".panel").forEach(p => p.hidden = p.id !== "panel-setup"); return; }
+  document.querySelectorAll(".tab").forEach(t => { t.hidden = t.classList.contains("admin-only") && !isAdmin(); });
+  if (!$("#panel-setup").hidden) showTab("eval");
+  renderHeader(); renderEval(); renderRubric(); renderPhrases();
+}
+
+/* ---------- Class list import ---------- */
+function trTitle(s) {
+  s = String(s ?? "").replace(/\u00a0/g, " ").trim().split(/\s+/).join(" ");
+  const low = s.replace(/I/g, "ı").replace(/İ/g, "i").toLocaleLowerCase("tr");
+  return low.split(" ").map(w => w ? w.charAt(0).toLocaleUpperCase("tr") + w.slice(1) : w).join(" ");
+}
+function classInfo(sheetName, firstCell) {
+  const t = String(sheetName || "").trim().toLocaleUpperCase("tr"), f = String(firstCell || "").toLocaleUpperCase("tr");
+  let m = t.match(/^(\d{1,2})\s*[-/ ]\s*([A-ZÇĞİÖŞÜ])$/) || f.match(/^(\d{1,2})\s*[-/]\s*([A-ZÇĞİÖŞÜ])/);
+  if (m) return { cls: `${m[1]}-${m[2]}`, grade: m[1] };
+  m = (t + " " + f).match(/(\d)\s*YAŞ/);
+  if (m) return { cls: `${m[1]} yaş`, grade: "ana" };
+  m = t.match(/ANA\s*([A-ZÇĞİÖŞÜ])$/) || f.match(/ANA\s*\/?\s*([A-ZÇĞİÖŞÜ])/);
+  if (m) return { cls: `5 yaş/${m[1]}`, grade: "ana" };
+  return { cls: String(sheetName).trim(), grade: "" };
+}
+async function parseRoster(file) {
+  if (typeof XLSX === "undefined") throw new Error("Excel okuyucu yüklenemedi");
+  const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+  const out = [];
+  wb.SheetNames.forEach(sn => {
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: "" });
+    const hi = rows.findIndex(r => r.some(c => /AD\s*SOYAD|ADI\s*SOYADI/i.test(String(c))));
+    if (hi < 0) return;
+    const h = rows[hi].map(c => String(c).toLocaleUpperCase("tr").trim());
+    const nameCol = h.findIndex(c => /AD\s*SOYAD|ADI\s*SOYADI/.test(c));
+    const noCol = h.findIndex(c => /^(NO|NUMARA|OKUL NO|ÖĞRENCİ NO)$/.test(c));
+    const clsCol = h.findIndex(c => /^(SINIF|ŞUBE|SINIF\/ŞUBE)$/.test(c));
+    const body = rows.slice(hi + 1).filter(r => String(r[nameCol] || "").trim());
+    if (!body.length) return;
+    const info = classInfo(sn, clsCol >= 0 ? body[0][clsCol] : "");
+    out.push({ cls: info.cls, grade: info.grade, students: body.map(r => { const no = noCol >= 0 && String(r[noCol]).trim() !== "" ? r[noCol] : null; const name = trTitle(r[nameCol]); return { id: `${info.cls}#${no ?? name}`, no, name }; }) });
+  });
+  return out;
+}
+
+/* ---------- Upload wizard ---------- */
+function setStatus(id, msg, kind) { const el = $(id); el.textContent = msg; el.className = "status" + (kind ? " " + kind : ""); }
+function enableStep(n, on) { $("#step" + n).setAttribute("aria-disabled", on ? "false" : "true"); }
+
+async function extractFile(file) {
+  const name = file.name.toLowerCase();
+  if (/\.(xlsx|xls|csv)$/.test(name)) {
+    if (typeof XLSX === "undefined") throw new Error("Excel okuyucu yüklenemedi; içeriği kopyalayıp yapıştır.");
+    const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+    return wb.SheetNames.map(sn => `# ${sn}\n` + XLSX.utils.sheet_to_csv(wb.Sheets[sn], { FS: " | " })).join("\n\n");
+  }
+  if (name.endsWith(".docx")) {
+    if (typeof mammoth === "undefined") throw new Error("Word okuyucu yüklenemedi; içeriği kopyalayıp yapıştır.");
+    return (await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() })).value;
+  }
+  if (name.endsWith(".pdf")) throw new Error("PDF doğrudan okunamıyor: metni kopyalayıp yapıştır ya da sayfanın fotoğrafını yükle.");
+  return await file.text();
+}
+const errCopy = code => ({
+  not_granted: "Yapay zekâ kullanımına izin verilmedi. “Elle oluştur” ile devam edebilirsin.",
+  sampling_disabled: "Bu hesapta yapay zekâ kullanılamıyor. “Elle oluştur” ile devam edebilirsin.",
+  rate_limited: "Çok sık istek gönderildi. Biraz bekleyip tekrar dene.",
+  invalid_json: "Yanıt okunamadı. Tekrar dene ya da yalnızca rubrik tablosunu yapıştır.",
+  refused: "Bu içerik işlenemedi. Metni kontrol edip tekrar dene.",
+  prompt_too_large: "Metin çok uzun. Yalnızca rubrik tablosunu yapıştır.",
+  image_rejected: "Fotoğraf kullanılamadı. Başka bir fotoğraf dene.",
+  session_expired: "Oturum süresi doldu. Yeniden giriş yapıp tekrar dene."
+}[code] || "Bir sorun oluştu. Tekrar deneyebilirsin.");
+
+function normalizeDraft(d) {
+  const str = x => String(x ?? "").trim();
+  let levels = (Array.isArray(d.levels) ? d.levels : []).map(l => typeof l === "string" ? { label: l } : l)
+    .filter(l => l && str(l.label) && !/gözlenmedi|not yet observed/i.test(str(l.label))).slice(0, 6);
+  if (levels.length < 2) levels = [{ label: "Başlangıç" }, { label: "Destekle yapıyor" }, { label: "Gelişiyor" }, { label: "İyi" }, { label: "Çok iyi" }];
+  const units = (Array.isArray(d.units) ? d.units : []).slice(0, 20).map(u => ({
+    name: str(u.name) || "Ünite",
+    objectives: (Array.isArray(u.objectives) ? u.objectives : []).slice(0, 15).map(o => ({
+      area: str(o.area), label: str(o.label) || "Kazanım", desc: str(o.desc), example: str(o.example) || null,
+      p: { tr: str(o.tr), en: str(o.en), de: str(o.de) }
+    }))
+  })).filter(u => u.objectives.length);
+  const s = d.subject || {};
+  return {
+    title: str(d.title), group: str(d.group), grade: str(d.grade),
+    subject: { tr: str(s.tr) || "yabancı dil", en: str(s.en) || "foreign language", de: str(s.de) || "Fremdsprachen" },
+    levels: levels.map(l => ({ label: str(l.label), tr: str(l.tr), en: str(l.en) })),
+    units
+  };
+}
+
+function renderEditor() {
+  if (!draft) { $("#editor").innerHTML = ""; return; }
+  const d = draft;
+  $("#editor").innerHTML = `
+    <div class="ed">
+      <div class="grid2">
+        <label class="field"><span>Rubrik adı</span><input data-ed="title" value="${esc(d.title)}"></label>
+        <label class="field"><span>Grup (listede başlık)</span><input data-ed="group" value="${esc(d.group)}"></label>
+      </div>
+      <label class="field"><span>Sınıf seviyesi (hangi şubelerin listede görüneceği)</span><select data-ed="grade"><option value="">Tüm şubeler</option>${Object.entries(GRADE_NAMES).map(([k, v]) => `<option value="${k}" ${d.grade === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
+      <div class="field"><span>Ders adı (yorumlarda geçer)</span></div>
+      <div class="ph-grid">${["tr", "en", "de"].map(l => `<div><label>${LANG_NAMES[l]}</label><input data-subj="${l}" value="${esc(d.subject[l])}"></div>`).join("")}</div>
+      <div class="field" style="margin-top:8px"><span>Puan ölçeği (düşükten yükseğe; 0 “henüz gözlenmedi” otomatik eklenir)</span></div>
+      <div>${d.levels.map((l, i) => `<div class="lv-row"><b>${i + 1}</b><input data-lv="${i}" data-k="label" value="${esc(l.label)}" aria-label="Düzey ${i + 1} adı"><input data-lv="${i}" data-k="tr" value="${esc(l.tr)}" placeholder="Açıklama (TR)"><input data-lv="${i}" data-k="en" value="${esc(l.en)}" placeholder="Descriptor (EN)"></div>`).join("")}
+        <div class="actions" style="margin-top:4px">${d.levels.length < 6 ? `<button class="btn small" data-act="addLevel">Düzey ekle</button>` : ""}${d.levels.length > 2 ? `<button class="btn small" data-act="delLevel">Son düzeyi kaldır</button>` : ""}</div></div>
+      <div class="field" style="margin-top:8px"><span>Üniteler ve kazanımlar</span></div>
+      <div>${d.units.map((u, ui) => `<div class="ed-unit"><input data-un="${ui}" value="${esc(u.name)}" aria-label="Ünite adı">
+        ${u.objectives.map((o, oi) => `<div class="ed-obj">
+          <div class="ed-row"><input data-ob="${ui}.${oi}" data-k="area" value="${esc(o.area)}" placeholder="Alan"><input data-ob="${ui}.${oi}" data-k="label" value="${esc(o.label)}" placeholder="Kazanım"><input data-ob="${ui}.${oi}" data-k="desc" value="${esc(o.desc)}" placeholder="Öğrenci …"></div>
+          <div class="ed-ph">${["tr", "en", "de"].map(l => `<input data-ob="${ui}.${oi}" data-k="p.${l}" value="${esc(o.p[l])}" placeholder="İfade (${LANG_NAMES[l]})">`).join("")}<button class="btn small danger" data-delobj="${ui}.${oi}">Kaldır</button></div>
+        </div>`).join("")}
+        <div class="actions"><button class="btn small" data-addobj="${ui}">Kazanım ekle</button><button class="btn small danger" data-delunit="${ui}">Üniteyi kaldır</button></div></div>`).join("")}
+        <div class="actions"><button class="btn" data-act="addUnit">Ünite ekle</button></div></div>
+    </div>`;
+}
+
+function draftProblem() {
+  if (!draft) return "Önce bir rubrik ekle.";
+  if (!draft.units.length) return "En az bir ünite ve kazanım gerekli.";
+  for (const u of draft.units) for (const o of u.objectives) {
+    if (!o.label) return "Her kazanımın bir adı olmalı.";
+    if (!o.p.tr || !o.p.en || !o.p.de) return `“${o.label}” için üç dildeki ifadeleri doldur.`;
+  }
+  if (draft.levels.some(l => !l.label)) return "Her düzeyin bir adı olmalı.";
+  return null;
+}
+function afterDraft(msg) {
+  renderEditor(); enableStep(2, true); enableStep(3, true);
+  setStatus("#parseStatus", msg, "ok"); setStatus("#saveStatus", "");
+  $("#step2").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function parseRubric() {
+  const text = $("#upText").value.trim();
+  if (!text && !imageBlob) { setStatus("#parseStatus", "Önce rubrik metnini yapıştır, dosya ya da fotoğraf seç.", "err"); return; }
+  if (!sample) { setStatus("#parseStatus", "Bu görünümde yapay zekâ kullanılamıyor. “Elle oluştur” ile devam edebilirsin.", "err"); return; }
+  const prompt = `Bir okulun yabancı diller zümresi için bir ölçme rubriği yapılandırıyorsun${imageBlob ? " (rubriğin fotoğrafı ekte" + (text ? ", metni aşağıda" : "") + ")" : ""}.
+
+Yalnızca şu biçimde JSON döndür:
+{"subject": {"tr": "dersin Türkçe adı (ör. İngilizce, Fransızca)", "en": "English name (e.g. English, French)", "de": "deutscher Name (z. B. Englisch, Französisch)"},
+ "levels": [{"label": "en düşük düzey adı", "tr": "Türkçe açıklama", "en": "English descriptor"}, ..., {"label": "en yüksek düzey adı", "tr": "...", "en": "..."}],
+ "units": [{"name": "ünite adı", "objectives": [{"area": "Kelime / Dil yapısı / Konuşma vb.", "label": "kazanım (kitaptaki adı)", "desc": "Öğrenci … ile başlayan kısa Türkçe tanım", "example": "tam puan için örnek ya da boş", "tr": "...", "en": "...", "de": "..."}]}]}
+
+Kurallar:
+- levels DÜŞÜKTEN YÜKSEĞE sıralı olsun; "henüz gözlenmedi" ya da 0 düzeyini dahil etme. Düzey adı yoksa düzey sayısına uygun yumuşak Türkçe adlar ver.
+- Rubrikte ünite yoksa tek bir ünite kullan ve adını "Genel" koy; ölçütleri kazanım olarak yaz.
+- Her kazanım için veli yorumlarında kullanılacak üç kısa ifade yaz:
+  • tr: "… konusunda" kalıbına uyan Türkçe isim ifadesi, küçük harfle başlar. Örnekler: "sınıf eşyalarını adlandırma", "yaşını sorup söyleme", "geçmiş olayları düzensiz fiillerle anlatma".
+  • en: "They can …" kalıbına uyan, yalın fiille başlayan İngilizce ifade. Örnekler: "name classroom objects", "ask and say their age", "talk about the past with irregular verbs".
+  • de: "Es kann …" kalıbına uyan, mastarla biten Almanca ifade. Örnekler: "Gegenstände im Klassenzimmer benennen", "nach dem Alter fragen und das eigene Alter sagen".
+- İfadeler veliye anlaşılır olsun; dil bilgisi terimi yerine ne yapabildiğini anlatsın. Hedef dildeki kalıpları (ör. "Can you…?") gerekirse tırnak içinde bırak.
+- Rubrikte olmayan kazanım ekleme. Metinde öğrenci adı veya kişisel bilgi varsa alma.
+${text ? "\nRubrik metni:\n<<<\n" + text.slice(0, 60000) + "\n>>>" : ""}`;
+  parseCtl = new AbortController();
+  $("#parseBtn").disabled = true; $("#stopBtn").hidden = false;
+  setStatus("#parseStatus", "Rubrik okunuyor ve ifadeler yazılıyor… Bu bir iki dakika sürebilir.");
+  try {
+    const opts = { signal: parseCtl.signal, onText: ({ text }) => setStatus("#parseStatus", `Rubrik okunuyor ve ifadeler yazılıyor… (${text.length} karakter)`) };
+    if (imageBlob) opts.images = [imageBlob];
+    const out = await sample.json(prompt, opts);
+    draft = normalizeDraft({ ...out, title: $("#upTitle").value.trim(), group: $("#upGroup").value.trim() || out?.subject?.tr || "" });
+    if (!draft.units.length) { setStatus("#parseStatus", "Metinde kazanım bulunamadı. Metni kontrol et ya da “Elle oluştur”u kullan.", "err"); return; }
+    const n = draft.units.reduce((a, u) => a + u.objectives.length, 0);
+    afterDraft(`${draft.units.length} ünite, ${n} kazanım ve ${draft.levels.length} düzey bulundu. Aşağıdan kontrol et.`);
+  } catch (e) {
+    if (e && e.code === "cancelled") setStatus("#parseStatus", "Durduruldu.");
+    else setStatus("#parseStatus", errCopy(e && e.code), "err");
+  } finally { $("#parseBtn").disabled = !sample; $("#stopBtn").hidden = true; }
+}
+
+function manualDraft() {
+  draft = normalizeDraft({ title: $("#upTitle").value.trim(), group: $("#upGroup").value.trim(), units: [{ name: "Ünite 1", objectives: [{ area: "Kelime", label: "Kazanım 1" }, { area: "Dil yapısı", label: "Kazanım 2" }] }] });
+  afterDraft("Boş bir rubrik oluşturuldu. Aşağıdan doldur.");
+}
+
+async function saveDraft() {
+  const p = draftProblem(); if (p) { setStatus("#saveStatus", p, "err"); return; }
+  const id = newId();
+  const scale = [{ n: 0, label: "Henüz gözlenmedi", tr: "Bu kazanımla ilgili çalışma henüz gözlenmedi.", en: "Not yet observed for this objective." }]
+    .concat(draft.levels.map((l, i) => ({ n: i + 1, label: l.label, tr: l.tr, en: l.en })));
+  let k = 0;
+  const data = {
+    builtIn: false, group: draft.group || "Yüklenen rubrikler", title: draft.title || "Yeni rubrik", subtitle: "", note: "Yüklenen rubrikten oluşturuldu.",
+    subject: draft.subject, scale,
+    units: draft.units.map(u => ({ name: u.name, objectives: u.objectives.map(o => ({ ...o, id: `${id}o${++k}` })) })),
+    grade: draft.grade || ""
+  };
+  $("#saveBtn").disabled = true; setStatus("#saveStatus", "Kaydediliyor…");
+  const { error } = await sb.from("rubrics").insert({ id, data, built_in: false, created_by: me.id });
+  $("#saveBtn").disabled = false;
+  if (error) { console.error(error); setStatus("#saveStatus", "Kaydedilemedi. Yönetici hesabıyla giriş yaptığından emin ol.", "err"); return; }
+  state.rubrics.push({ ...data, id }); state.activeId = id; state.unit[id] = 0; save();
+  draft = null; imageBlob = null;
+  ["#upTitle", "#upGroup", "#upText"].forEach(s => $(s).value = ""); $("#imgName").textContent = "";
+  renderEditor(); enableStep(2, false); enableStep(3, false); setStatus("#parseStatus", ""); setStatus("#saveStatus", "");
+  await refresh(); showTab("eval"); toast(`“${data.title}” kaydedildi`);
+}
+
+/* ---------- Tabs ---------- */
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.tab === name ? "true" : "false"));
+  document.querySelectorAll(".panel").forEach(p => p.hidden = p.id !== "panel-" + name);
+  window.scrollTo({ top: 0 });
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "logoutBtn") { await sb.auth.signOut(); location.reload(); return; }
+  if (b.id === "seedBtn") {
+    b.disabled = true;
+    try { await seedRubrics(); await loadBase(); await refresh(); toast("Hazır rubrikler yüklendi"); }
+    catch (err) { b.disabled = false; dbErr(err, "Rubrikler yüklenemedi. Yönetici hesabıyla giriş yaptığından emin ol."); }
+    return;
+  }
+  if (b.id === "reloadBtn" || b.id === "reloadBtn2") {
+    try { await loadBase(); } catch (err) { dbErr(err, "Veriler yüklenemedi."); }
+    await refresh(true); toast("Güncellendi"); return;
+  }
+  const r = rub();
+  if (b.dataset.tab) { showTab(b.dataset.tab); return; }
+  if (!r) return;
+  if (b.dataset.lang) { state.lang = b.dataset.lang; save(); renderAll(); return; }
+  if (b.dataset.sid) {
+    const sc = scoresOf(r, b.dataset.sid), v = +b.dataset.v, nv = sc[b.dataset.o] === v ? null : v;
+    setScore(r, b.dataset.sid, b.dataset.o, nv); renderEval();
+    const again = document.querySelector(`button[data-sid="${CSS.escape(b.dataset.sid)}"][data-o="${CSS.escape(b.dataset.o)}"][data-v="${v}"]`); if (again) again.focus();
+    return;
+  }
+  if (b.dataset.del) {
+    if (!isAdmin()) return;
+    const c = currentClass(r); const st = c && c.students.find(s => s.id === b.dataset.del); if (!st) return;
+    if (!(await ask(`${st.name} ${c.cls} listesinden çıkarılsın mı? Öğrenci tüm derslerin listesinden kalkar; girilmiş puanları saklanır.`, "Çıkar"))) return;
+    const { error } = await sb.from("students").update({ active: false }).eq("id", st.id);
+    if (error) { dbErr(error); return; }
+    c.students = c.students.filter(s => s.id !== st.id); renderEval(); toast(`${st.name} çıkarıldı`); return;
+  }
+  if (b.dataset.copy) {
+    const i = lastStudents.findIndex(s => s.id === b.dataset.copy); const res = lastResults[i]; if (!res) return;
+    toast((await copyText(res.text)) ? "Yorum kopyalandı" : "Kopyalanamadı, metni elle seç"); return;
+  }
+  if (draft) {
+    if (b.dataset.act === "addLevel") { draft.levels.push({ label: "Yeni düzey", tr: "", en: "" }); renderEditor(); return; }
+    if (b.dataset.act === "delLevel") { draft.levels.pop(); renderEditor(); return; }
+    if (b.dataset.act === "addUnit") { draft.units.push({ name: `Ünite ${draft.units.length + 1}`, objectives: [{ area: "", label: "Yeni kazanım", desc: "", example: null, p: { tr: "", en: "", de: "" } }] }); renderEditor(); return; }
+    if (b.dataset.addobj !== undefined) { draft.units[+b.dataset.addobj].objectives.push({ area: "", label: "Yeni kazanım", desc: "", example: null, p: { tr: "", en: "", de: "" } }); renderEditor(); return; }
+    if (b.dataset.delobj) { const [ui, oi] = b.dataset.delobj.split(".").map(Number); draft.units[ui].objectives.splice(oi, 1); if (!draft.units[ui].objectives.length) draft.units.splice(ui, 1); renderEditor(); return; }
+    if (b.dataset.delunit !== undefined) { draft.units.splice(+b.dataset.delunit, 1); renderEditor(); return; }
+  }
+  switch (b.id) {
+    case "copyAll": {
+      const lines = lastStudents.map((s, i) => lastResults[i] ? `${s.name}: ${lastResults[i].text}` : null).filter(Boolean);
+      if (!lines.length) { toast("Henüz kopyalanacak yorum yok"); return; }
+      toast((await copyText(lines.join("\n\n"))) ? `${lines.length} yorum kopyalandı` : "Kopyalanamadı"); return;
+    }
+    case "rosterBtn": if (isAdmin()) $("#rosterFile").click(); return;
+    case "parseBtn": parseRubric(); return;
+    case "stopBtn": parseCtl?.abort(); return;
+    case "manualBtn": manualDraft(); return;
+    case "saveBtn": saveDraft(); return;
+    case "deleteRubric": {
+      if (!isAdmin() || r.builtIn) return;
+      if (!(await ask(`“${r.title}” rubriği ve bu rubrikteki tüm puanlar herkes için silinsin mi?`, "Sil"))) return;
+      const { error } = await sb.from("rubrics").delete().eq("id", r.id);
+      if (error) { dbErr(error); return; }
+      state.rubrics = state.rubrics.filter(x => x.id !== r.id); state.activeId = state.rubrics[0]?.id || null; save(); await refresh(); toast("Rubrik silindi"); return;
+    }
+  }
+});
+
+let renderT;
+document.addEventListener("input", e => {
+  const t = e.target, r = rub();
+  if (!r) return;
+  if (t.dataset.note) {
+    queueNote(r, t.dataset.note, t.value);
+    clearTimeout(renderT);
+    renderT = setTimeout(() => { const pos = t.selectionStart, id = t.dataset.note; renderEval(); const el = document.querySelector(`input[data-note="${CSS.escape(id)}"]`); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (x) {} } }, 400);
+    return;
+  }
+  if (t.dataset.ph) {
+    if (!isAdmin()) return;
+    const o = r.units.flatMap(u => u.objectives).find(x => x.id === t.dataset.ph); if (!o) return;
+    o.p = o.p || {}; o.p[t.dataset.l] = t.value.trim(); queueRubricSave(r);
+    const pv = document.querySelector(`[data-prev="${CSS.escape(o.id)}"]`); if (pv) pv.textContent = previewFor(r, o);
+    clearTimeout(renderT); renderT = setTimeout(() => renderEval(), 400);
+    return;
+  }
+  if (!draft) return;
+  if (t.dataset.ed) draft[t.dataset.ed] = t.value;
+  else if (t.dataset.subj) draft.subject[t.dataset.subj] = t.value;
+  else if (t.dataset.lv !== undefined) draft.levels[+t.dataset.lv][t.dataset.k] = t.value;
+  else if (t.dataset.un !== undefined) draft.units[+t.dataset.un].name = t.value;
+  else if (t.dataset.ob) {
+    const [ui, oi] = t.dataset.ob.split(".").map(Number), o = draft.units[ui].objectives[oi], k = t.dataset.k;
+    if (k.startsWith("p.")) o.p[k.slice(2)] = t.value.trim(); else o[k] = t.value;
+  }
+});
+
+$("#rubricSelect").addEventListener("change", async e => { state.activeId = e.target.value; save(); await refresh(); });
+$("#unitSelect").addEventListener("change", e => { state.unit[state.activeId] = e.target.value; save(); renderEval(); });
+$("#classSelect").addEventListener("change", async e => { state.cls[state.activeId] = e.target.value; save(); await refresh(); });
+$("#addForm").addEventListener("submit", async e => {
+  e.preventDefault(); const name = trTitle($("#newName").value); if (!name) return;
+  const r = rub(); const c = r && currentClass(r); if (!c) { toast("Önce sınıf listelerinin yüklenmesi gerekiyor"); return; }
+  const st = { id: `${c.cls}#${newId()}`, cls: c.cls, no: null, name };
+  const { error } = await sb.from("students").insert(st);
+  if (error) { dbErr(error); return; }
+  c.students.push({ id: st.id, no: null, name }); $("#newName").value = ""; renderEval(); toast(`${name}, ${c.cls} listesine eklendi`);
+});
+$("#rosterFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f || !isAdmin()) return;
+  try {
+    const classes = await parseRoster(f);
+    if (!classes.length) { toast("Dosyada öğrenci listesi bulunamadı"); return; }
+    const total = classes.reduce((a, c) => a + c.students.length, 0);
+    if (!(await ask(`${classes.length} şube, ${total} öğrenci bulundu (${classes.map(c => c.cls).join(", ")}). Bu şubelerin listeleri herkes için güncellensin mi? Aynı numaralı öğrencilerin puanları korunur; listede artık olmayan öğrenciler listeden çıkarılır.`, "Güncelle"))) return;
+    toast("Liste aktarılıyor…");
+    let res = await sb.from("classes").upsert(classes.map(c => ({ cls: c.cls, grade: c.grade })));
+    if (res.error) throw res.error;
+    const rows = classes.flatMap(c => c.students.map(s => ({ id: s.id, cls: c.cls, no: s.no, name: s.name, active: true })));
+    for (let i = 0; i < rows.length; i += 500) { res = await sb.from("students").upsert(rows.slice(i, i + 500)); if (res.error) throw res.error; }
+    for (const c of classes) {
+      const old = state.roster.find(x => x.cls === c.cls);
+      const keep = new Set(c.students.map(s => s.id));
+      const gone = old ? old.students.filter(s => !keep.has(s.id)).map(s => s.id) : [];
+      if (gone.length) { res = await sb.from("students").update({ active: false }).in("id", gone); if (res.error) throw res.error; }
+    }
+    await loadBase(); await refresh(true); toast(`${total} öğrenci aktarıldı`);
+  } catch (err) { dbErr(err, err.message && !err.code ? err.message : "Liste aktarılamadı. Yönetici hesabıyla giriş yaptığından emin ol."); }
+});
+$("#upFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const text = await extractFile(f); $("#upText").value = text.trim().slice(0, 60000); if (!$("#upTitle").value) $("#upTitle").value = f.name.replace(/\.[^.]+$/, "").replace(/_/g, " "); setStatus("#parseStatus", `“${f.name}” içeriği kutuya aktarıldı.`, "ok"); }
+  catch (err) { setStatus("#parseStatus", err.message || "Dosya okunamadı.", "err"); }
+  e.target.value = "";
+});
+$("#upImage").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  imageBlob = f; $("#imgName").textContent = `Seçildi: ${f.name}`; setStatus("#parseStatus", "Fotoğraf hazır. “Rubriği çözümle”ye bas.", "ok");
+});
+window.addEventListener("focus", () => { if (me && rub()) refresh(true); });
+
+/* ---------- Auth ---------- */
+function authStatus(msg, kind) { const el = $("#authStatus"); el.textContent = msg || ""; el.className = "status" + (kind ? " " + kind : ""); }
+function showAuth(mode) {
+  $("#appView").hidden = true; $("#authView").hidden = false;
+  $("#loginForm").hidden = mode !== "login"; $("#pwForm").hidden = mode !== "password";
+  $("#authIntro").textContent = mode === "password" ? "Hesabını tamamlamak için adını ve yeni şifreni belirle." : "Zümre hesabınla giriş yap.";
+}
+async function enterApp() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { showAuth("login"); return; }
+  const { data: prof } = await sb.from("profiles").select("id,email,full_name,role").eq("id", user.id).maybeSingle();
+  me = prof || { id: user.id, email: user.email, full_name: "", role: "teacher" };
+  loadPrefs();
+  try { await loadBase(); } catch (err) { showAuth("login"); authStatus("Veriler yüklenemedi. Veritabanı kurulumunu kontrol et.", "err"); console.error(err); return; }
+  $("#authView").hidden = true; $("#appView").hidden = false;
+  await refresh();
+  initAI();
+}
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault(); authStatus("Giriş yapılıyor…");
+  const { error } = await sb.auth.signInWithPassword({ email: $("#loginEmail").value.trim(), password: $("#loginPass").value });
+  if (error) { authStatus(/invalid/i.test(error.message) ? "E-posta ya da şifre hatalı." : "Giriş yapılamadı. Tekrar dene.", "err"); return; }
+  authStatus(""); enterApp();
+});
+$("#forgotBtn").addEventListener("click", async () => {
+  const email = $("#loginEmail").value.trim();
+  if (!email) { authStatus("Önce e-posta adresini yaz.", "err"); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  authStatus(error ? "Bağlantı gönderilemedi. Biraz sonra tekrar dene." : "Şifre yenileme bağlantısı e-postana gönderildi.", error ? "err" : "ok");
+});
+$("#pwForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const pass = $("#pwPass").value, name = $("#pwName").value.trim();
+  if (pass.length < 8) { authStatus("Şifre en az 8 karakter olmalı.", "err"); return; }
+  authStatus("Kaydediliyor…");
+  const { data, error } = await sb.auth.updateUser({ password: pass, data: name ? { full_name: name } : undefined });
+  if (error) { authStatus("Şifre kaydedilemedi. Bağlantının süresi dolmuş olabilir; yeniden davet iste.", "err"); return; }
+  if (name) await sb.from("profiles").update({ full_name: name }).eq("id", data.user.id);
+  history.replaceState(null, "", location.pathname);
+  authStatus(""); enterApp();
+});
+
+/* ---------- AI (only inside Claude) ---------- */
+async function initAI() {
+  try {
+    if (window.claude && typeof window.claude.use === "function") {
+      sample = await window.claude.use("sample");
+      if (sample) { const lim = await sample.limits().catch(() => null); canImages = !!(lim && lim.images); }
+    }
+  } catch (e) { sample = null; }
+  $("#imgWrap").hidden = !canImages;
+  $("#parseBtn").disabled = !sample;
+  setStatus("#parseStatus", sample ? "" : "Yapay zekâ ile çözümleme yalnızca uygulama Claude içinden açıldığında çalışır. Burada “Elle oluştur” ile rubriği kendin girebilirsin.");
+}
+
+/* ---------- Start ---------- */
+(async () => {
+  enableStep(2, false); enableStep(3, false);
+  if (SUPABASE_URL.includes("YOUR-PROJECT") || typeof supabase === "undefined") {
+    showAuth("login"); authStatus("Kurulum tamamlanmamış: SUPABASE_URL ve SUPABASE_ANON_KEY değerlerini dosyaya yaz.", "err"); $("#loginBtn").disabled = true; return;
+  }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  let recovery = URL_TYPE === "invite" || URL_TYPE === "recovery";
+  sb.auth.onAuthStateChange(ev => { if (ev === "PASSWORD_RECOVERY") { recovery = true; showAuth("password"); } });
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { showAuth("login"); return; }
+  if (recovery) { showAuth("password"); return; }
+  enterApp();
+})();
+
+</script>
+</body>
+</html>
